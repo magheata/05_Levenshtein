@@ -7,6 +7,8 @@ import java.util.HashMap;
 public class Word {
     private int distance;
     private String entry;
+    private int line;
+    private int pos;
     private boolean soundexWord;
     private HashMap<Integer, ArrayList<Word>> replaceWords = new HashMap<>();
 
