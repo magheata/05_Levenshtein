@@ -10,4 +10,5 @@ public class Constants {
     public final static Dimension DIM_WINDOW = new Dimension(WIDTH_WINDOW, HEIGHT_WINDOW);
 
     public final static String PATH_DICC_ES = "dicc/ES.dic";
+    public final static String PATH_DICC_EN = "dicc/EN.dic";
 }

@@ -1,19 +1,25 @@
 /* Created by andreea on 05/05/2020 */
 package Application;
 
+import Domain.Dictionary;
+import Domain.Word;
+import Infrastructure.Soundex;
 import Infrastructure.SpellChecker;
+import Utils.MultiMap;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Controller {
 
     private Reader reader;
     private SpellChecker spellChecker;
-    private ArrayList<String> dictionary;
-    private ArrayList<String> replaceWords;
 
-    private HashMap<String, HashMap<Integer, ArrayList<String>>> replaceWordsFor = new HashMap<>();
+    private Dictionary dictionary;
+
+    private MultiMap<String, String> dict = new MultiMap<>();
 
     public Controller(){
         reader = new Reader();
@@ -21,56 +27,51 @@ public class Controller {
     }
 
     public void importDicctionary(String path){
-        dictionary = reader.readFile(path);
+        dictionary = new Dictionary(path);
+        dictionary.setEntries(reader.readDicc(path));
     }
     
-    public boolean findWordInDicctionary(String wordToFind){
-        replaceWords = new ArrayList<>();
-        for (String word: dictionary) {
-            int distance = spellChecker.levenshtein(wordToFind, word);
+    public boolean findWordInDicctionary(Word wordToFind){
+        for (Word word: dictionary.getEntries()) {
+            int distance = spellChecker.levenshtein(wordToFind.getEntry(), word.getEntry());
             if (distance == 0){
                 return true;
             } else {
-                if (!replaceWordsFor.containsKey(wordToFind)){
-                    HashMap<Integer, ArrayList<String>> replaceWords = new HashMap<>();
+                if (!wordToFind.replaceWordsInitialized()){
                     for (int i = 1; i <= 2; i++){
-                        replaceWords.put(i, new ArrayList<>());
+                        wordToFind.addDistance(i);
                     }
-                    replaceWordsFor.put(wordToFind, replaceWords);
                 }
                 if ((distance < 3)){
-                    /*if (word.length() == wordToFind.length()){
-                        addReplaceWord(distance, word, wordToFind);
-                    }*/
-                    addReplaceWord(distance, word, wordToFind);
+                    wordToFind.addReplaceWord(new Word(distance, word.getEntry()));
                 }
             }
         }
         return false;
     }
 
-    private void addReplaceWord(int distance, String replaceWord, String wordToFind){
-        replaceWordsFor.get(wordToFind).get(distance).add(replaceWord);
-    }
-
-    public ArrayList<String> getReplaceWords() {
-        return replaceWords;
-    }
-
     public void checkText(){
         ArrayList<String> wordsInText = reader.readFile("examples/prueba.txt");
-        for (String wordToFind: wordsInText.get(0).split(" ")) {
-            if (findWordInDicctionary(wordToFind.toLowerCase())){
+        Word word;
+        for (String wordToFind: wordsInText) {
+            word = new Word(wordToFind);
+            if (findWordInDicctionary(word)){
                 System.out.println("Word \""+ wordToFind+ "\" exists");
             } else {
                 System.out.println("Word \"" + wordToFind + "\" could not be found. Maybe you meant: ");
-                for (String replaceWord: replaceWordsFor.get(wordToFind).get(1)) {
-                    System.out.println(replaceWord);
+                for (Word replaceWord: word.getReplaceWords(1)) {
+                    System.out.println(replaceWord.getEntry());
                 }
-                /*System.out.println("-----------------------------------------------------------------");
-                for (String replaceWord: replaceWordsFor.get(wordToFind).get(2)) {
-                    System.out.println(replaceWord);
-                }*/
+            }
+        }
+    }
+
+    public void populateDict(String filename) throws IOException {
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String soundex = Soundex.soundex(line);
+                dict.put(soundex, line);
             }
         }
     }

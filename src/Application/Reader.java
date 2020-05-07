@@ -14,9 +14,31 @@ public class Reader {
             in = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF8"));
             String str;
             while ((str = in.readLine()) != null) {
-                if (str.contains(".")){
-                    str = str.substring(0, str.indexOf("."));
+                String[] words = str.split(" ");
+                for (String word : words){
+                    dicc.add(normalizeWord(word));
                 }
+            }
+            in.close();
+        } catch (UnsupportedEncodingException unsupportedEncodingException) {
+            unsupportedEncodingException.printStackTrace();
+        } catch (FileNotFoundException fileNotFoundException) {
+            fileNotFoundException.printStackTrace();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+        return dicc;
+    }
+
+
+    public ArrayList<String> readDicc(String path){
+        File file = new File(path);
+        ArrayList<String> dicc = new ArrayList<>();
+        BufferedReader in;
+        try {
+            in = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF8"));
+            String str;
+            while ((str = in.readLine()) != null) {
                 dicc.add(str);
             }
             in.close();
@@ -28,5 +50,10 @@ public class Reader {
             ioException.printStackTrace();
         }
         return dicc;
+    }
+
+    private String normalizeWord(String word){
+        word = word.replaceAll("[.:!¡?¿,;&()=#+'\\-_*@{<>}]", "");
+        return word.toLowerCase();
     }
 }

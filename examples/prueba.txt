@@ -1,1 +1,1 @@
-Prueba para ver si se busc vien en el dicionario con acentos y apóstrofes o sin apostrofes.
+Prueba para ver si se busc.:!¡?¿,;&()=#+-_*@{<>} vien en el dicionario con acentos y- apóstrofes o sin apostrofes.
