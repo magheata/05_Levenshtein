@@ -12,7 +12,8 @@ public class Main {
         Window w = new Window();
         Controller controller = new Controller();
         controller.importDicctionary(Constants.PATH_DICC_ES);
-        //controller.checkText();
+        controller.checkText();
+
         try {
             controller.populateDict(Constants.PATH_DICC_EN);
         } catch (IOException e) {
@@ -23,7 +24,6 @@ public class Main {
 
         controller.importSoundexDicctionary(Constants.PATH_DICC_EN);
         // search for homophones
-
         Word wordToFind = new Word(word, true);
         // pruning results with Levenshtein Distance
         controller.findWordInDicctionary(wordToFind);
@@ -31,7 +31,7 @@ public class Main {
         System.out.println("Word mispelled: " + word);
         System.out.println("Matching words: ");
 
-        for (Word entry: wordToFind.getReplaceWords(1)) {
+        for (Word entry: wordToFind.getReplaceWords(2)) {
             System.out.println(entry.getEntry());
         }
     }
