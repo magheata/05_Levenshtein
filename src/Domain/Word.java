@@ -7,15 +7,18 @@ import java.util.HashMap;
 public class Word {
     private int distance;
     private String entry;
+    private boolean soundexWord;
     private HashMap<Integer, ArrayList<Word>> replaceWords = new HashMap<>();
 
-    public Word(int distance, String entry) {
+    public Word(int distance, String entry, boolean soundexWord) {
         this.distance = distance;
         this.entry = entry;
+        this.soundexWord = soundexWord;
     }
 
-    public Word(String entry) {
+    public Word(String entry, boolean soundexWord) {
         this.entry = entry;
+        this.soundexWord = soundexWord;
     }
 
     public String getEntry() {
@@ -24,6 +27,10 @@ public class Word {
 
     public ArrayList<Word> getReplaceWords(int distance) {
         return replaceWords.get(distance);
+    }
+
+    public boolean isSoundexWord() {
+        return soundexWord;
     }
 
     public boolean replaceWordsInitialized(){

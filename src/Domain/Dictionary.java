@@ -1,14 +1,22 @@
 /* Created by andreea on 07/05/2020 */
 package Domain;
 
+import Utils.Constants;
+
 import java.util.ArrayList;
 
 public class Dictionary {
-    private String type;
-    private ArrayList<Word> entries;
+    protected String type;
+    protected ArrayList<Word> entries;
 
-    public Dictionary(String type) {
+    public Dictionary(String type, ArrayList<String> entries) {
         this.type = type;
+        this.entries = new ArrayList<>();
+        Word word;
+        for(String entry : entries){
+            word = new Word(entry, type.equals(Constants.PATH_DICC_EN) ? true : false);
+            this.entries.add(word);
+        }
     }
 
     public String getType() {
@@ -17,14 +25,5 @@ public class Dictionary {
 
     public ArrayList<Word> getEntries() {
         return entries;
-    }
-
-    public void setEntries(ArrayList<String> entries) {
-        this.entries = new ArrayList<>();
-        Word word;
-        for(String entry : entries){
-            word = new Word(entry);
-            this.entries.add(word);
-        }
     }
 }
