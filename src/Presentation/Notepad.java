@@ -166,7 +166,7 @@ public class Notepad extends JTextPane {
                 Word writtenWord = new Word(word.toString(), false);
                 if (!controller.findWordInDicctionary(writtenWord)) {
                     try {
-                        highlighter.addHighlight(auxIdx + 1, auxIdx + 1 + word.length(), painter);
+                        highlighter.addHighlight(auxIdx == 0 ? auxIdx : auxIdx + 1, (auxIdx == 0 ? auxIdx : auxIdx + 1) + word.length(), painter);
                     } catch (BadLocationException badLocationException) {
                         badLocationException.printStackTrace();
                     }
