@@ -4,6 +4,8 @@ package Presentation;
 import Utils.Constants;
 
 import javax.swing.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.concurrent.ExecutorService;
@@ -23,6 +25,38 @@ public class Notepad extends JTextPane {
         this.setEditable(false);
         this.setSize(Constants.DIM_NOTEPAD);
         this.setPreferredSize(Constants.DIM_NOTEPAD);
+        this.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                JTextPane textPane = (JTextPane)  e.getComponent();
+                int startCursor = textPane.getCaretPosition();
+                String text = textPane.getText();
+
+                if ((0 < startCursor) && (startCursor <= text.length())){
+                    int auxIdx = startCursor - 1;
+                    char charAtCursor = text.charAt(auxIdx);
+                    while ((charAtCursor != ' ') && (charAtCursor!= '\n') && (charAtCursor != '.')){
+                        if (auxIdx > 0){
+                            auxIdx--;
+                            charAtCursor = text.charAt(auxIdx);
+                        } else {
+                            break;
+                        }
+                    }
+                    System.out.println(text.substring(auxIdx, startCursor).trim());
+                }
+            }
+        });
         this.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
