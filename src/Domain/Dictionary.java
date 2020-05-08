@@ -13,7 +13,7 @@ public class Dictionary {
         this.type = type;
         this.entries = new ArrayList<>();
         Word word;
-        for(String entry : entries){
+        for (String entry : entries) {
             word = new Word(entry, type.equals(Constants.PATH_DICC_EN) ? true : false);
             this.entries.add(word);
         }

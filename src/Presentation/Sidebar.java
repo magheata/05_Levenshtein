@@ -8,7 +8,7 @@ import java.awt.*;
 
 public class Sidebar extends JPanel {
 
-    public Sidebar(){
+    public Sidebar() {
         initComponents();
     }
 

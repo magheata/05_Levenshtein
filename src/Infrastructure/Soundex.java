@@ -9,7 +9,7 @@ public class Soundex {
         String output = x[0] + "";
 
         // replace consonants with digits
-        for (int i = 0; i<x.length; i++) {
+        for (int i = 0; i < x.length; i++) {
             switch (x[i]) {
                 case 'B':
                 case 'F':
@@ -54,7 +54,7 @@ public class Soundex {
         }
 
         // remove duplicates
-        for (int i = 1; i<x.length; i++)
+        for (int i = 1; i < x.length; i++)
             if (x[i] != x[i - 1] && x[i] != '0')
                 output += x[i];
 

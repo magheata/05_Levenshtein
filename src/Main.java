@@ -1,18 +1,15 @@
 /* Created by andreea on 05/05/2020 */
 
 import Application.Controller;
-import Domain.Word;
 import Presentation.Window;
 import Utils.Constants;
-
-import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) {
         Controller controller = new Controller();
         controller.setWindow(new Window(controller));
         controller.importDicctionary(Constants.PATH_DICC_ES);
-        try {
+        /*try {
             controller.populateDict(Constants.PATH_DICC_EN);
         } catch (IOException e) {
             e.printStackTrace();
@@ -31,6 +28,6 @@ public class Main {
 
         for (Word entry: wordToFind.getReplaceWords(2)) {
             System.out.println(entry.getEntry());
-        }
+        }*/
     }
 }

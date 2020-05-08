@@ -7,7 +7,6 @@ import Utils.Constants;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 
 public class Menu {
 
@@ -22,7 +21,7 @@ public class Menu {
 
     private JMenuBar menuBar;
 
-    public Menu(Controller controller){
+    public Menu(Controller controller) {
         this.controller = controller;
         initComponents();
     }

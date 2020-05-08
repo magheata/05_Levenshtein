@@ -6,11 +6,10 @@ import Utils.Constants;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.concurrent.Future;
 
 public class Reader {
 
-    public ArrayList<String> readFile(String path){
+    public ArrayList<String> readFile(String path) {
         File file = new File(path);
         ArrayList<String> dicc = new ArrayList<>();
         BufferedReader in;
@@ -19,7 +18,7 @@ public class Reader {
             String str;
             while ((str = in.readLine()) != null) {
                 String[] words = str.split(" ");
-                for (String word : words){
+                for (String word : words) {
                     dicc.add(normalizeWord(word));
                 }
             }
@@ -35,7 +34,7 @@ public class Reader {
     }
 
 
-    public ArrayList<String> readDicc(String path){
+    public ArrayList<String> readDicc(String path) {
         File file = new File(path);
         ArrayList<String> dicc = new ArrayList<>();
         BufferedReader in;
@@ -56,9 +55,9 @@ public class Reader {
         return dicc;
     }
 
-    public StringBuilder getFileContent(String path){
+    public StringBuilder getFileContent(String path) {
         StringBuilder sb = new StringBuilder();
-        try{
+        try {
             Scanner scanner = new Scanner(new File(path));
             while (scanner.hasNextLine()) {
                 // Print the content on the console
@@ -66,13 +65,13 @@ public class Reader {
                 sb.append("\n");
             }
             scanner.close();
-        } catch (IOException ex){
+        } catch (IOException ex) {
 
         }
         return sb;
     }
 
-    private String normalizeWord(String word){
+    private String normalizeWord(String word) {
         word = word.replaceAll(Constants.SYMBOLS.toArray().toString(), "");
         return word.toLowerCase();
     }

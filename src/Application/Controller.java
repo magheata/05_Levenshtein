@@ -13,7 +13,6 @@ import Utils.MultiMap;
 
 import javax.swing.*;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,49 +43,49 @@ public class Controller {
 
     private MultiMap<String, String> dict = new MultiMap<>();
 
-    public Controller(){
+    public Controller() {
         reader = new Reader();
         spellChecker = new SpellChecker();
     }
 
-    public void importDicctionary(String path){
+    public void importDicctionary(String path) {
         dictionary = new Dictionary(path, reader.readDicc(path));
     }
 
-    public void importSoundexDicctionary(String path){
+    public void importSoundexDicctionary(String path) {
         dictionary = new SoundexDictionary(path, reader.readDicc(path));
     }
-    
-    public boolean findWordInDicctionary(Word wordToFind){
-        if (wordToFind.isSoundexWord()){
+
+    public boolean findWordInDicctionary(Word wordToFind) {
+        if (wordToFind.isSoundexWord()) {
             Collection<String> collection = dict.get(Soundex.soundex(wordToFind.getEntry()));
-            for (String homophone: collection){
+            for (String homophone : collection) {
                 int distance = spellChecker.levenshtein(wordToFind.getEntry(), homophone);
-                if (distance == 0){
+                if (distance == 0) {
                     return true;
                 } else {
-                    if (!wordToFind.replaceWordsInitialized()){
-                        for (int i = 1; i <= 2; i++){
+                    if (!wordToFind.replaceWordsInitialized()) {
+                        for (int i = 1; i <= 2; i++) {
                             wordToFind.addDistance(i);
                         }
                     }
-                    if ((distance < 3)){
+                    if ((distance < 3)) {
                         wordToFind.addReplaceWord(new Word(distance, homophone, true));
                     }
                 }
             }
         } else {
-            for (Word word: dictionary.getEntries()) {
+            for (Word word : dictionary.getEntries()) {
                 int distance = spellChecker.levenshtein(wordToFind.getEntry(), word.getEntry());
-                if (distance == 0){
+                if (distance == 0) {
                     return true;
                 } else {
-                    if (!wordToFind.replaceWordsInitialized()){
-                        for (int i = 1; i <= 2; i++){
+                    if (!wordToFind.replaceWordsInitialized()) {
+                        for (int i = 1; i <= 2; i++) {
                             wordToFind.addDistance(i);
                         }
                     }
-                    if ((distance < 3)){
+                    if ((distance < 3)) {
                         wordToFind.addReplaceWord(new Word(distance, word.getEntry(), false));
                     }
                 }
@@ -96,20 +95,20 @@ public class Controller {
         return false;
     }
 
-    public StringBuilder getFileContent(String path){
+    public StringBuilder getFileContent(String path) {
         return reader.getFileContent(path);
     }
 
-    public void checkText(){
+    public void checkText() {
         ArrayList<String> wordsInText = reader.readFile("examples/prueba.txt");
         Word word;
-        for (String wordToFind: wordsInText) {
+        for (String wordToFind : wordsInText) {
             word = new Word(wordToFind, dictionary.getType().equals(Constants.PATH_DICC_EN) ? true : false);
-            if (findWordInDicctionary(word)){
-                System.out.println("Word \""+ wordToFind+ "\" exists");
+            if (findWordInDicctionary(word)) {
+                System.out.println("Word \"" + wordToFind + "\" exists");
             } else {
                 System.out.println("Word \"" + wordToFind + "\" could not be found. Maybe you meant: ");
-                for (Word replaceWord: word.getReplaceWords(1)) {
+                for (Word replaceWord : word.getReplaceWords(1)) {
                     System.out.println(replaceWord.getEntry());
                 }
             }
@@ -126,10 +125,11 @@ public class Controller {
         }
     }
 
-    public JFileChooser getFileChooser(){
+    public JFileChooser getFileChooser() {
         return window.getFileChooser();
     }
-    public void openFileChooser(boolean isEditable){
+
+    public void openFileChooser(boolean isEditable) {
         switch (window.getFileChooser().showOpenDialog(window)) {
             case JFileChooser.APPROVE_OPTION:
                 notepad.setNotepadText(reader.getFileContent(window.getFileChooser().getSelectedFile().getAbsolutePath()));
@@ -138,7 +138,7 @@ public class Controller {
         }
     }
 
-    public void enableNotepad(boolean isEditable){
+    public void enableNotepad(boolean isEditable) {
         notepad.setNotepadEditable(isEditable);
     }
 }

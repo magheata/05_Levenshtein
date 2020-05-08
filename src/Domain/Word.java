@@ -35,15 +35,15 @@ public class Word {
         return soundexWord;
     }
 
-    public boolean replaceWordsInitialized(){
+    public boolean replaceWordsInitialized() {
         return replaceWords.size() > 0;
     }
 
-    public void addDistance(int distance){
+    public void addDistance(int distance) {
         replaceWords.put(distance, new ArrayList<>());
     }
 
-    public void addReplaceWord(Word replaceWord){
+    public void addReplaceWord(Word replaceWord) {
         replaceWords.get(replaceWord.distance).add(replaceWord);
     }
 

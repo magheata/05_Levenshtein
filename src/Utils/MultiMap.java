@@ -1,11 +1,7 @@
 /* Created by andreea on 07/05/2020 */
 package Utils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class MultiMap<K, V> {
     private Map<K, Collection<V>> map = new HashMap<>();
@@ -15,7 +11,7 @@ public class MultiMap<K, V> {
      */
     public void put(K key, V value) {
         if (map.get(key) == null)
-            map.put(key, new ArrayList<V> ());
+            map.put(key, new ArrayList<V>());
 
         map.get(key).add(value);
     }
@@ -85,7 +81,7 @@ public class MultiMap<K, V> {
      */
     public int size() {
         int size = 0;
-        for (Collection<V> value: map.values()) {
+        for (Collection<V> value : map.values()) {
             size += value.size();
         }
         return size;

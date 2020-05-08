@@ -22,7 +22,7 @@ public class Window extends JFrame {
 
     private JFileChooser fileChooser;
 
-    public Window(Controller controller){
+    public Window(Controller controller) {
         this.controller = controller;
         initComponents();
     }
@@ -35,7 +35,7 @@ public class Window extends JFrame {
 
         fileChooser = new JFileChooser(new File(System.getProperty("user.dir")));
         fileChooser.setFileFilter(new FileNameExtensionFilter("txt", "txt"));
-        notepadPanel = new Notepad();
+        notepadPanel = new Notepad(controller);
         controller.setNotepad(notepadPanel);
         sideBarPanel = new Sidebar();
         menuPanel = new Menu(controller);

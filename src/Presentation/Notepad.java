@@ -1,26 +1,42 @@
 /* Created by andreea on 07/05/2020 */
 package Presentation;
 
+import Application.Controller;
+import Domain.Word;
 import Utils.Constants;
+import Utils.UnderlineHighlightPainter;
 
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Notepad extends JTextPane {
 
-    private ExecutorService executor;
+    private Highlighter.HighlightPainter painterBracketUnmatched = new DefaultHighlighter.DefaultHighlightPainter(Color.red);
+    private Highlighter.HighlightPainter painter = new UnderlineHighlightPainter(Color.red);
 
-    public Notepad(){
+    private ExecutorService executor;
+    private ArrayList<Character> charactersInWord;
+    private Controller controller;
+
+    public Notepad(Controller controller) {
+        this.controller = controller;
         initComponents();
     }
 
     private void initComponents() {
         executor = Executors.newSingleThreadExecutor();
+        charactersInWord = new ArrayList<>();
         this.setVisible(true);
         this.setEditable(false);
         this.setSize(Constants.DIM_NOTEPAD);
@@ -38,23 +54,7 @@ public class Notepad extends JTextPane {
 
             @Override
             public void keyReleased(KeyEvent e) {
-                JTextPane textPane = (JTextPane)  e.getComponent();
-                int startCursor = textPane.getCaretPosition();
-                String text = textPane.getText();
-
-                if ((0 < startCursor) && (startCursor <= text.length())){
-                    int auxIdx = startCursor - 1;
-                    char charAtCursor = text.charAt(auxIdx);
-                    while ((charAtCursor != ' ') && (charAtCursor!= '\n') && (charAtCursor != '.')){
-                        if (auxIdx > 0){
-                            auxIdx--;
-                            charAtCursor = text.charAt(auxIdx);
-                        } else {
-                            break;
-                        }
-                    }
-                    System.out.println(text.substring(auxIdx, startCursor).trim());
-                }
+                executor.submit(() -> checkWrittenWordInPanel(e));
             }
         });
         this.addMouseListener(new MouseListener() {
@@ -85,39 +85,39 @@ public class Notepad extends JTextPane {
         });
     }
 
-    public void setNotepadText(StringBuilder content){
+    public void setNotepadText(StringBuilder content) {
         this.setText(content.toString());
     }
 
-    public void setNotepadEditable(boolean editable){
+    public void setNotepadEditable(boolean editable) {
         this.setEditable(editable);
     }
 
-    private void getSelectedTextFromPanel(MouseEvent e){
+    private void getSelectedTextFromPanel(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e)) {
-            JTextPane textPane = (JTextPane)  e.getComponent();
+            JTextPane textPane = (JTextPane) e.getComponent();
             int start = textPane.getSelectionStart();
             String text = textPane.getText();
-            if ((0 <= start) && (start <= text.length() - 1)){
+            if ((0 <= start) && (start <= text.length() - 1)) {
                 boolean eof = false;
-                if ((text.charAt(start) != ' ') && (text.charAt(start) != '\n')){
+                if ((text.charAt(start) != ' ') && (text.charAt(start) != '\n')) {
                     int wordStart = start;
                     int wordEnd = start;
                     char currentChar = text.charAt(start);
-                    while (!Constants.SYMBOLS.contains(currentChar)){
-                        if (wordStart > 0){
+                    while (!Constants.SYMBOLS.contains(currentChar)) {
+                        if (wordStart > 0) {
                             wordStart--;
                             currentChar = text.charAt(wordStart);
                         } else {
                             break;
                         }
                     }
-                    if (Constants.SYMBOLS.contains(currentChar)){
+                    if (Constants.SYMBOLS.contains(currentChar)) {
                         wordStart++;
                     }
                     currentChar = text.charAt(start);
-                    while (!Constants.SYMBOLS.contains(currentChar)){
-                        if (wordEnd < text.length() - 1){
+                    while (!Constants.SYMBOLS.contains(currentChar)) {
+                        if (wordEnd < text.length() - 1) {
                             wordEnd++;
                             currentChar = text.charAt(wordEnd);
                         } else {
@@ -125,8 +125,8 @@ public class Notepad extends JTextPane {
                             break;
                         }
                     }
-                    if (eof){
-                        System.out.println(text.substring(wordStart, wordEnd  + 1));
+                    if (eof) {
+                        System.out.println(text.substring(wordStart, wordEnd + 1));
                     } else {
                         System.out.println(text.substring(wordStart, wordEnd));
                     }
@@ -134,4 +134,51 @@ public class Notepad extends JTextPane {
             }
         }
     }
+
+    private void checkWrittenWordInPanel(KeyEvent e) {
+        JTextPane textPane = (JTextPane) e.getComponent();
+        Highlighter highlighter = textPane.getHighlighter();
+
+        int startCursor = textPane.getCaretPosition();
+        String text = textPane.getText();
+        if ((0 < startCursor) && (startCursor <= text.length())) {
+            int auxIdx = startCursor - 1;
+            char charAtCursor = text.charAt(auxIdx);
+            if ((charAtCursor == ' ') || (charAtCursor == '\n') || (charAtCursor == '.')) {
+                auxIdx--;
+                charAtCursor = text.charAt(auxIdx);
+                while ((charAtCursor != ' ') && (charAtCursor != '\n') && (charAtCursor != '.')) {
+                    charactersInWord.add(charAtCursor);
+                    if (auxIdx > 0) {
+                        auxIdx--;
+                        charAtCursor = text.charAt(auxIdx);
+                    } else {
+                        break;
+                    }
+                }
+                Collections.reverse(charactersInWord);
+
+                StringBuilder word = new StringBuilder();
+                for (Character ch : charactersInWord) {
+                    word.append(ch);
+                }
+
+                Word writtenWord = new Word(word.toString(), false);
+                if (!controller.findWordInDicctionary(writtenWord)) {
+                    try {
+                        highlighter.addHighlight(auxIdx + 1, auxIdx + 1 + word.length(), painter);
+                    } catch (BadLocationException badLocationException) {
+                        badLocationException.printStackTrace();
+                    }
+
+                    System.out.println(word.toString() + " is mispelled. Maybe you meant: ");
+                    for (Word entry : writtenWord.getReplaceWords(1)) {
+                        System.out.println(entry.getEntry());
+                    }
+                }
+                charactersInWord.clear();
+            }
+        }
+    }
+
 }

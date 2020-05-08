@@ -16,13 +16,13 @@ public class SoundexDictionary extends Dictionary {
         populateDict();
     }
 
-    public void populateDict(){
-        for(Word word : entries){
+    public void populateDict() {
+        for (Word word : entries) {
             dict.put(Soundex.soundex(word.getEntry()), word.getEntry());
         }
     }
 
-    public Collection<String> getHomophones(String word){
+    public Collection<String> getHomophones(String word) {
         return dict.get(word);
     }
 }
