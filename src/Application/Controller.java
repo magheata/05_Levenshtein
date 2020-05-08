@@ -6,10 +6,14 @@ import Domain.SoundexDictionary;
 import Domain.Word;
 import Infrastructure.Soundex;
 import Infrastructure.SpellChecker;
+import Presentation.Notepad;
+import Presentation.Window;
 import Utils.Constants;
 import Utils.MultiMap;
 
+import javax.swing.*;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,6 +23,18 @@ public class Controller {
 
     private Reader reader;
     private SpellChecker spellChecker;
+
+    public void setWindow(Window window) {
+        this.window = window;
+    }
+
+    private Window window;
+
+    public void setNotepad(Notepad notepad) {
+        this.notepad = notepad;
+    }
+
+    private Notepad notepad;
 
     private Dictionary dictionary;
 
@@ -80,6 +96,10 @@ public class Controller {
         return false;
     }
 
+    public StringBuilder getFileContent(String path){
+        return reader.getFileContent(path);
+    }
+
     public void checkText(){
         ArrayList<String> wordsInText = reader.readFile("examples/prueba.txt");
         Word word;
@@ -104,5 +124,21 @@ public class Controller {
                 dict.put(soundex, line);
             }
         }
+    }
+
+    public JFileChooser getFileChooser(){
+        return window.getFileChooser();
+    }
+    public void openFileChooser(boolean isEditable){
+        switch (window.getFileChooser().showOpenDialog(window)) {
+            case JFileChooser.APPROVE_OPTION:
+                notepad.setNotepadText(reader.getFileContent(window.getFileChooser().getSelectedFile().getAbsolutePath()));
+                notepad.setNotepadEditable(isEditable);
+                break;
+        }
+    }
+
+    public void enableNotepad(boolean isEditable){
+        notepad.setNotepadEditable(isEditable);
     }
 }

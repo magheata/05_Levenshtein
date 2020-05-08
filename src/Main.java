@@ -9,11 +9,9 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) {
-        Window w = new Window();
         Controller controller = new Controller();
+        controller.setWindow(new Window(controller));
         controller.importDicctionary(Constants.PATH_DICC_ES);
-        controller.checkText();
-
         try {
             controller.populateDict(Constants.PATH_DICC_EN);
         } catch (IOException e) {
