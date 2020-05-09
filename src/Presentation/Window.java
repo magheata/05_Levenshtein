@@ -37,7 +37,7 @@ public class Window extends JFrame {
         fileChooser.setFileFilter(new FileNameExtensionFilter("txt", "txt"));
         notepadPanel = new Notepad(controller);
         controller.setNotepad(notepadPanel);
-        sideBarPanel = new Sidebar();
+        sideBarPanel = new Sidebar(controller);
         menuPanel = new Menu(controller);
 
         JScrollPane notepadScrollPanel = new JScrollPane(notepadPanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,

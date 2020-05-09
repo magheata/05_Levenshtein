@@ -5,20 +5,12 @@ import Application.Controller;
 import Utils.Constants;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class Menu {
 
     private JMenuItem newFileMenuItem, newFileFromExistingMenuItem, openExistingMenuItem;
     private JMenu newFileMenu, openFileMenu;
-
     private Controller controller;
-
-    public JMenuBar getMenuBar() {
-        return menuBar;
-    }
-
     private JMenuBar menuBar;
 
     public Menu(Controller controller) {
@@ -38,29 +30,18 @@ public class Menu {
         menuBar.add(openFileMenu);
 
         newFileMenuItem = new JMenuItem("File");
-        newFileMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                controller.enableNotepad(true);
-            }
-        });
+        newFileMenuItem.addActionListener(e -> controller.enableNotepad(true));
         newFileFromExistingMenuItem = new JMenuItem("File from existing sources...");
-        newFileFromExistingMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                controller.openFileChooser(true);
-            }
-        });
+        newFileFromExistingMenuItem.addActionListener(e -> controller.openFileChooser(true));
         newFileMenu.add(newFileMenuItem);
         newFileMenu.add(newFileFromExistingMenuItem);
 
         openExistingMenuItem = new JMenuItem("Open existing file...");
-        openExistingMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                controller.openFileChooser(false);
-            }
-        });
+        openExistingMenuItem.addActionListener(e -> controller.openFileChooser(false));
         openFileMenu.add(openExistingMenuItem);
+    }
+
+    public JMenuBar getMenuBar() {
+        return menuBar;
     }
 }

@@ -17,11 +17,13 @@ public class Constants {
     public final static Dimension DIM_SIDEBAR = new Dimension(WIDTH_SIDEBAR, HEIGHT_SIDEBAR);
     public final static Dimension DIM_NOTEPAD = new Dimension(WIDTH_NOTEPAD, HEIGHT_NOTEPAD);
 
-    public final static String PATH_DICC_ES = "dicc/ES.dic";
-    public final static String PATH_DICC_EN = "dicc/EN.dic";
+    public final static String PATH_DICC_ES = "dicc/español.dic";
+    public final static String PATH_DICC_EN = "dicc/english.dic";
 
     public final static String PATH_ADD_FILE_ICON = "src/Presentation/Images/add.png";
     public final static String PATH_OPEN_FILE_ICON = "src/Presentation/Images/folder.png";
+    public final static String PATH_EN_ICON = "src/Presentation/Images/english.png";
+    public final static String PATH_ES_ICON = "src/Presentation/Images/español.png";
 
     public final static ArrayList<Character> SYMBOLS = new ArrayList<>(Arrays.asList('.', ':', '!', '¡', '?', '¿', ',', ';',
             '&', '(', ')', '=', '#', '+', '-', '_', '*', '@', '{', '<', '>', '}', ' ', '\n'));

@@ -144,10 +144,10 @@ public class Notepad extends JTextPane {
         if ((0 < startCursor) && (startCursor <= text.length())) {
             int auxIdx = startCursor - 1;
             char charAtCursor = text.charAt(auxIdx);
-            if ((charAtCursor == ' ') || (charAtCursor == '\n') || (charAtCursor == '.')) {
+            if (Constants.SYMBOLS.contains(charAtCursor)) {
                 auxIdx--;
                 charAtCursor = text.charAt(auxIdx);
-                while ((charAtCursor != ' ') && (charAtCursor != '\n') && (charAtCursor != '.')) {
+                while (!Constants.SYMBOLS.contains(charAtCursor)) {
                     charactersInWord.add(charAtCursor);
                     if (auxIdx > 0) {
                         auxIdx--;
@@ -179,6 +179,10 @@ public class Notepad extends JTextPane {
                 charactersInWord.clear();
             }
         }
+    }
+
+    public String getTextFromNotepad(){
+        return this.getText();
     }
 
 }

@@ -2,6 +2,7 @@
 package Application;
 
 import Domain.Dictionary;
+import Domain.Language;
 import Domain.SoundexDictionary;
 import Domain.Word;
 import Infrastructure.Soundex;
@@ -10,46 +11,55 @@ import Presentation.Notepad;
 import Presentation.Window;
 import Utils.Constants;
 import Utils.MultiMap;
+import Utils.Utils;
 
 import javax.swing.*;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 
 public class Controller {
 
     private Reader reader;
+    private Utils utils;
     private SpellChecker spellChecker;
-
-    public void setWindow(Window window) {
-        this.window = window;
-    }
-
+    private Language selectedLanguage;
     private Window window;
-
-    public void setNotepad(Notepad notepad) {
-        this.notepad = notepad;
-    }
-
     private Notepad notepad;
-
     private Dictionary dictionary;
+    private MultiMap<String, String> dict = new MultiMap<String, String>();
+    private HashMap<String, Dictionary> languageDictionary = new HashMap<>();
+    private HashMap<String, String> dictionaryPath = new HashMap<>();
+    private HashMap<String, Language> availableLanguages = new HashMap<>();
 
-    public MultiMap<String, String> getDict() {
-        return dict;
-    }
-
-    private MultiMap<String, String> dict = new MultiMap<>();
 
     public Controller() {
+        initApplication();
         reader = new Reader();
         spellChecker = new SpellChecker();
     }
 
-    public void importDicctionary(String path) {
+    private void initApplication() {
+        utils = new Utils();
+        loadAvailableLanguages();
+    }
+
+    private void loadAvailableLanguages(){
+        ArrayList<File> dictionaries = utils.listFilesForFolder(new File("dicc/"));
+        for (File dictionary : dictionaries){
+            String language = dictionary.getName().split("\\.")[0];
+            Language newLanguage = new Language(language, new ImageIcon("src/Presentation/Images/" + language + ".png"));
+            languageDictionary.put(newLanguage.getName(), null);
+            dictionaryPath.put(newLanguage.getName(), dictionary.getAbsolutePath());
+            availableLanguages.put(language, newLanguage);
+        }
+    }
+
+    public Dictionary importDicctionary(String path) {
         dictionary = new Dictionary(path, reader.readDicc(path));
+        return dictionary;
     }
 
     public void importSoundexDicctionary(String path) {
@@ -99,8 +109,24 @@ public class Controller {
         return reader.getFileContent(path);
     }
 
+    public void checkText(String path) {
+        ArrayList<String> wordsInText = reader.readFile(path);
+        Word word;
+        for (String wordToFind : wordsInText) {
+            word = new Word(wordToFind, dictionary.getType().equals(Constants.PATH_DICC_EN) ? true : false);
+            if (findWordInDicctionary(word)) {
+                System.out.println("Word \"" + wordToFind + "\" exists");
+            } else {
+                System.out.println("Word \"" + wordToFind + "\" could not be found. Maybe you meant: ");
+                for (Word replaceWord : word.getReplaceWords(1)) {
+                    System.out.println(replaceWord.getEntry());
+                }
+            }
+        }
+    }
+
     public void checkText() {
-        ArrayList<String> wordsInText = reader.readFile("examples/prueba.txt");
+        String[] wordsInText = notepad.getText().split(" ");
         Word word;
         for (String wordToFind : wordsInText) {
             word = new Word(wordToFind, dictionary.getType().equals(Constants.PATH_DICC_EN) ? true : false);
@@ -141,4 +167,35 @@ public class Controller {
     public void enableNotepad(boolean isEditable) {
         notepad.setNotepadEditable(isEditable);
     }
+
+    public ArrayList<Language> getLanguages() {
+        ArrayList<Language> langs = new ArrayList<>();;
+        for (String language : dictionaryPath.keySet()){
+            langs.add(availableLanguages.get(language));
+        }
+        return langs;
+    }
+
+    public void setSelectedLanguage(Language selectedLanguage){
+        this.selectedLanguage = selectedLanguage;
+        if (languageDictionary.get(selectedLanguage.getName()) == null){
+            languageDictionary.put(selectedLanguage.getName(), importDicctionary(dictionaryPath.get(selectedLanguage.getName())));
+        }
+        dictionary = languageDictionary.get(selectedLanguage.getName());
+        checkText();
+    }
+
+    public void setNotepad(Notepad notepad) {
+        this.notepad = notepad;
+    }
+
+    public void setWindow(Window window) {
+        this.window = window;
+    }
+
+    public MultiMap<String, String> getDict() {
+        return dict;
+    }
+
+
 }
