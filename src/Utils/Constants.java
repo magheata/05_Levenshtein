@@ -28,4 +28,5 @@ public class Constants {
     public final static ArrayList<Character> SYMBOLS = new ArrayList<>(Arrays.asList('.', ':', '!', '¡', '?', '¿', ',', ';',
             '&', '(', ')', '=', '#', '+', '-', '_', '*', '@', '{', '<', '>', '}', ' ', '\n'));
 
+    public final static ArrayList<String> SOUNDEX_DICTIONARIES = new ArrayList<>(Arrays.asList("english"));
 }

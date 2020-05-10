@@ -33,7 +33,11 @@ public class Controller {
     private HashMap<String, Dictionary> languageDictionary = new HashMap<>();
     private HashMap<String, String> dictionaryPath = new HashMap<>();
     private HashMap<String, Language> availableLanguages = new HashMap<>();
+    private HashMap<Integer, Word> mispelledWordsCursorEnd = new HashMap<>();
 
+    private ArrayList<Word> mispelledWords = new ArrayList<>();
+
+    private boolean isSoundexDictionary;
 
     public Controller() {
         initApplication();
@@ -62,8 +66,8 @@ public class Controller {
         return dictionary;
     }
 
-    public void importSoundexDicctionary(String path) {
-        dictionary = new SoundexDictionary(path, reader.readDicc(path));
+    public Dictionary importSoundexDicctionary(String path) {
+        return new SoundexDictionary(path, reader.readDicc(path));
     }
 
     public boolean findWordInDicctionary(Word wordToFind) {
@@ -179,7 +183,13 @@ public class Controller {
     public void setSelectedLanguage(Language selectedLanguage){
         this.selectedLanguage = selectedLanguage;
         if (languageDictionary.get(selectedLanguage.getName()) == null){
-            languageDictionary.put(selectedLanguage.getName(), importDicctionary(dictionaryPath.get(selectedLanguage.getName())));
+            if (Constants.SOUNDEX_DICTIONARIES.contains(selectedLanguage.getName())){
+                languageDictionary.put(selectedLanguage.getName(), importSoundexDicctionary(dictionaryPath.get(selectedLanguage.getName())));
+                isSoundexDictionary = true;
+            } else {
+                languageDictionary.put(selectedLanguage.getName(), importDicctionary(dictionaryPath.get(selectedLanguage.getName())));
+                isSoundexDictionary = false;
+            }
         }
         dictionary = languageDictionary.get(selectedLanguage.getName());
         checkText();
@@ -197,5 +207,19 @@ public class Controller {
         return dict;
     }
 
+    public void addMispelledWord(Word word, int row, int col){
+        word.setLine(row);
+        word.setPos(col);
+        word.setMispelled(true);
+        mispelledWords.add(word);
+        if(mispelledWordsCursorEnd.get(col) != null){
+            mispelledWordsCursorEnd.remove(col);
+            mispelledWordsCursorEnd.put(col, word);
+        }
+        System.out.println(mispelledWords.toString());
+    }
 
+    public boolean isSoundexDictionary(){
+        return isSoundexDictionary;
+    }
 }

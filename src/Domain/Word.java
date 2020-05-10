@@ -7,6 +7,16 @@ import java.util.HashMap;
 public class Word {
     private int distance;
     private String entry;
+    private boolean mispelled;
+
+    public void setLine(int line) {
+        this.line = line;
+    }
+
+    public void setPos(int pos) {
+        this.pos = pos;
+    }
+
     private int line;
     private int pos;
     private boolean soundexWord;
@@ -47,4 +57,20 @@ public class Word {
         replaceWords.get(replaceWord.distance).add(replaceWord);
     }
 
+    public boolean isMispelled() {
+        return mispelled;
+    }
+
+    public void setMispelled(boolean mispelled) {
+        this.mispelled = mispelled;
+    }
+
+    @Override
+    public String toString() {
+        return "Word{" +
+                "distance=" + distance +
+                ", entry='" + entry + '\'' +
+                ", soundexWord=" + soundexWord +
+                "}\n";
+    }
 }

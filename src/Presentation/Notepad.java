@@ -10,6 +10,7 @@ import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
+import javax.swing.text.Utilities;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -138,9 +139,9 @@ public class Notepad extends JTextPane {
     private void checkWrittenWordInPanel(KeyEvent e) {
         JTextPane textPane = (JTextPane) e.getComponent();
         Highlighter highlighter = textPane.getHighlighter();
-
         int startCursor = textPane.getCaretPosition();
         String text = textPane.getText();
+
         if ((0 < startCursor) && (startCursor <= text.length())) {
             int auxIdx = startCursor - 1;
             char charAtCursor = text.charAt(auxIdx);
@@ -156,21 +157,22 @@ public class Notepad extends JTextPane {
                         break;
                     }
                 }
-                Collections.reverse(charactersInWord);
 
+                Collections.reverse(charactersInWord);
                 StringBuilder word = new StringBuilder();
                 for (Character ch : charactersInWord) {
                     word.append(ch);
                 }
 
-                Word writtenWord = new Word(word.toString(), false);
+                Word writtenWord = new Word(word.toString(), controller.isSoundexDictionary());
+
                 if (!controller.findWordInDicctionary(writtenWord)) {
                     try {
+                        controller.addMispelledWord(writtenWord, getCurrentRow(startCursor), startCursor);
                         highlighter.addHighlight(auxIdx == 0 ? auxIdx : auxIdx + 1, (auxIdx == 0 ? auxIdx : auxIdx + 1) + word.length(), painter);
                     } catch (BadLocationException badLocationException) {
                         badLocationException.printStackTrace();
                     }
-
                     System.out.println(word.toString() + " is mispelled. Maybe you meant: ");
                     for (Word entry : writtenWord.getReplaceWords(1)) {
                         System.out.println(entry.getEntry());
@@ -181,8 +183,16 @@ public class Notepad extends JTextPane {
         }
     }
 
-    public String getTextFromNotepad(){
-        return this.getText();
+    private int getCurrentRow(int caretPos){
+        int rowNum = (caretPos == 0) ? 1 : 0;
+        for (int offset = caretPos; offset > 0;) {
+            try {
+                offset = Utilities.getRowStart(this, offset) - 1;
+            } catch (BadLocationException e) {
+                e.printStackTrace();
+            }
+            rowNum++;
+        }
+        return rowNum;
     }
-
 }
