@@ -17,6 +17,14 @@ public class Word {
         this.pos = pos;
     }
 
+    public int getLine() {
+        return line;
+    }
+
+    public int getPos() {
+        return pos;
+    }
+
     private int line;
     private int pos;
     private boolean soundexWord;
@@ -63,6 +71,10 @@ public class Word {
 
     public void setMispelled(boolean mispelled) {
         this.mispelled = mispelled;
+    }
+
+    public boolean isSameWord(Word word){
+        return (this.line == word.line) && (this.pos == word.pos);
     }
 
     @Override

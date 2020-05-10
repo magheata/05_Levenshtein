@@ -220,14 +220,26 @@ public class Controller {
         return dict;
     }
 
-    public void addMispelledWord(Word word, int row, int col){
-        word.setLine(row);
-        word.setPos(col);
+    public void addMispelledWord(Word word){
         word.setMispelled(true);
-        mispelledWords.add(word);
-        if(mispelledWordsCursorEnd.get(col) != null){
-            mispelledWordsCursorEnd.remove(col);
-            mispelledWordsCursorEnd.put(col, word);
+        ArrayList<Word> auxMispelledWord = (ArrayList<Word>) mispelledWords.clone();
+        if (auxMispelledWord.size() > 0){
+            for (Word mispelledWord : auxMispelledWord){
+                if (word.getEntry().equals(mispelledWord.getEntry())){
+                    if (!word.isSameWord(mispelledWord)){
+                        mispelledWords.add(word);
+                    }
+                } else {
+                    mispelledWords.add(word);
+                }
+            }
+        } else {
+            mispelledWords.add(word);
+        }
+
+        if(mispelledWordsCursorEnd.get(word.getPos()) != null){
+            mispelledWordsCursorEnd.remove(word.getPos());
+            mispelledWordsCursorEnd.put(word.getPos(), word);
         }
         System.out.println(mispelledWords.toString());
     }

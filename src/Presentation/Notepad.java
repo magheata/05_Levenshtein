@@ -141,45 +141,52 @@ public class Notepad extends JTextPane {
     }
 
     private void checkWrittenWordInPanel(KeyEvent e) {
-        JTextPane textPane = (JTextPane) e.getComponent();
-        int startCursor = textPane.getCaretPosition();
-        String text = textPane.getText();
+        if (e.getKeyCode() == KeyEvent.VK_DELETE){
 
-        if ((0 < startCursor) && (startCursor <= text.length())) {
-            int auxIdx = startCursor - 1;
-            char charAtCursor = text.charAt(auxIdx);
-            if (Constants.SYMBOLS.contains(charAtCursor)) {
-                auxIdx--;
-                charAtCursor = text.charAt(auxIdx);
-                while (!Constants.SYMBOLS.contains(charAtCursor)) {
-                    charactersInWord.add(charAtCursor);
-                    if (auxIdx > 0) {
-                        auxIdx--;
-                        charAtCursor = text.charAt(auxIdx);
-                    } else {
-                        break;
-                    }
-                }
-                if (charactersInWord.size() > 0){
-                    Collections.reverse(charactersInWord);
-                    StringBuilder word = new StringBuilder();
-                    for (Character ch : charactersInWord) {
-                        word.append(ch);
-                    }
-                    Word writtenWord = new Word(word.toString(), controller.isSoundexDictionary());
-                    if (!controller.findWordInDicctionary(writtenWord)) {
-                        try {
-                            controller.addMispelledWord(writtenWord, getCurrentRow(startCursor), startCursor);
-                            highlighter.addHighlight(auxIdx == 0 ? auxIdx : auxIdx + 1, (auxIdx == 0 ? auxIdx : auxIdx + 1) + word.length(), painter);
-                        } catch (BadLocationException badLocationException) {
-                            badLocationException.printStackTrace();
-                        }
-                        System.out.println(word.toString() + " is mispelled. Maybe you meant: ");
-                        for (Word entry : writtenWord.getReplaceWords(1)) {
-                            System.out.println(entry.getEntry());
+        } else {
+            JTextPane textPane = (JTextPane) e.getComponent();
+            int startCursor = textPane.getCaretPosition();
+            String text = textPane.getText();
+
+            if ((0 < startCursor) && (startCursor <= text.length())) {
+                int auxIdx = startCursor - 1;
+                char charAtCursor = text.charAt(auxIdx);
+                Word writtenWord;
+                if (Constants.SYMBOLS.contains(charAtCursor)) {
+                    auxIdx--;
+                    charAtCursor = text.charAt(auxIdx);
+                    while (!Constants.SYMBOLS.contains(charAtCursor)) {
+                        charactersInWord.add(charAtCursor);
+                        if (auxIdx > 0) {
+                            auxIdx--;
+                            charAtCursor = text.charAt(auxIdx);
+                        } else {
+                            break;
                         }
                     }
-                    charactersInWord.clear();
+                    if (charactersInWord.size() > 0){
+                        Collections.reverse(charactersInWord);
+                        StringBuilder word = new StringBuilder();
+                        for (Character ch : charactersInWord) {
+                            word.append(ch);
+                        }
+                        writtenWord = new Word(word.toString(), controller.isSoundexDictionary());
+                        if (!controller.findWordInDicctionary(writtenWord)) {
+                            try {
+                                writtenWord.setPos(startCursor);
+                                writtenWord.setLine(getCurrentRow(startCursor));
+                                controller.addMispelledWord(writtenWord);
+                                highlighter.addHighlight(auxIdx == 0 ? auxIdx : auxIdx + 1, (auxIdx == 0 ? auxIdx : auxIdx + 1) + word.length(), painter);
+                            } catch (BadLocationException badLocationException) {
+                                badLocationException.printStackTrace();
+                            }
+                            System.out.println(word.toString() + " is mispelled. Maybe you meant: ");
+                            for (Word entry : writtenWord.getReplaceWords(1)) {
+                                System.out.println(entry.getEntry());
+                            }
+                        }
+                        charactersInWord.clear();
+                    }
                 }
             }
         }
