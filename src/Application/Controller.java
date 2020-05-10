@@ -137,6 +137,7 @@ public class Controller {
             if (findWordInDicctionary(word)) {
                 System.out.println("Word \"" + wordToFind + "\" exists");
             } else {
+                notepad.underlineMispelledWord(word);
                 System.out.println("Word \"" + wordToFind + "\" could not be found. Maybe you meant: ");
                 for (Word replaceWord : word.getReplaceWords(1)) {
                     System.out.println(replaceWord.getEntry());
@@ -181,6 +182,7 @@ public class Controller {
     }
 
     public void setSelectedLanguage(Language selectedLanguage){
+        notepad.removeHighlights();
         this.selectedLanguage = selectedLanguage;
         if (languageDictionary.get(selectedLanguage.getName()) == null){
             if (Constants.SOUNDEX_DICTIONARIES.contains(selectedLanguage.getName())){

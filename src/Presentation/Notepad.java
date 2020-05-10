@@ -30,8 +30,11 @@ public class Notepad extends JTextPane {
     private ArrayList<Character> charactersInWord;
     private Controller controller;
 
+    private Highlighter highlighter;
+;
     public Notepad(Controller controller) {
         this.controller = controller;
+        highlighter = this.getHighlighter();
         initComponents();
     }
 
@@ -58,6 +61,7 @@ public class Notepad extends JTextPane {
                 executor.submit(() -> checkWrittenWordInPanel(e));
             }
         });
+
         this.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -138,7 +142,6 @@ public class Notepad extends JTextPane {
 
     private void checkWrittenWordInPanel(KeyEvent e) {
         JTextPane textPane = (JTextPane) e.getComponent();
-        Highlighter highlighter = textPane.getHighlighter();
         int startCursor = textPane.getCaretPosition();
         String text = textPane.getText();
 
@@ -194,5 +197,19 @@ public class Notepad extends JTextPane {
             rowNum++;
         }
         return rowNum;
+    }
+
+    public void underlineMispelledWord(Word word) {
+        try {
+            String text = this.getText();
+            int indexWord = text.toLowerCase().indexOf(word.getEntry().toLowerCase());
+            highlighter.addHighlight(indexWord, indexWord + word.getEntry().length(), painter);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void removeHighlights(){
+        highlighter.removeAllHighlights();
     }
 }
