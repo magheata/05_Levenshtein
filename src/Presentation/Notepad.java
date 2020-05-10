@@ -160,28 +160,27 @@ public class Notepad extends JTextPane {
                         break;
                     }
                 }
-
-                Collections.reverse(charactersInWord);
-                StringBuilder word = new StringBuilder();
-                for (Character ch : charactersInWord) {
-                    word.append(ch);
-                }
-
-                Word writtenWord = new Word(word.toString(), controller.isSoundexDictionary());
-
-                if (!controller.findWordInDicctionary(writtenWord)) {
-                    try {
-                        controller.addMispelledWord(writtenWord, getCurrentRow(startCursor), startCursor);
-                        highlighter.addHighlight(auxIdx == 0 ? auxIdx : auxIdx + 1, (auxIdx == 0 ? auxIdx : auxIdx + 1) + word.length(), painter);
-                    } catch (BadLocationException badLocationException) {
-                        badLocationException.printStackTrace();
+                if (charactersInWord.size() > 0){
+                    Collections.reverse(charactersInWord);
+                    StringBuilder word = new StringBuilder();
+                    for (Character ch : charactersInWord) {
+                        word.append(ch);
                     }
-                    System.out.println(word.toString() + " is mispelled. Maybe you meant: ");
-                    for (Word entry : writtenWord.getReplaceWords(1)) {
-                        System.out.println(entry.getEntry());
+                    Word writtenWord = new Word(word.toString(), controller.isSoundexDictionary());
+                    if (!controller.findWordInDicctionary(writtenWord)) {
+                        try {
+                            controller.addMispelledWord(writtenWord, getCurrentRow(startCursor), startCursor);
+                            highlighter.addHighlight(auxIdx == 0 ? auxIdx : auxIdx + 1, (auxIdx == 0 ? auxIdx : auxIdx + 1) + word.length(), painter);
+                        } catch (BadLocationException badLocationException) {
+                            badLocationException.printStackTrace();
+                        }
+                        System.out.println(word.toString() + " is mispelled. Maybe you meant: ");
+                        for (Word entry : writtenWord.getReplaceWords(1)) {
+                            System.out.println(entry.getEntry());
+                        }
                     }
+                    charactersInWord.clear();
                 }
-                charactersInWord.clear();
             }
         }
     }
@@ -211,5 +210,30 @@ public class Notepad extends JTextPane {
 
     public void removeHighlights(){
         highlighter.removeAllHighlights();
+    }
+
+    public int getWordRow(Word word){
+        String text = this.getText();
+        ArrayList<Integer> eofIndex = new ArrayList<>();
+        int index = text.indexOf("\n");
+        int row = 0;
+        if (index == -1){
+            return row;
+        } else {
+            while (index >= 0) {
+                eofIndex.add(index);
+                System.out.println(index);
+                index = text.indexOf("\n", index + 1);
+            }
+
+            for (int eof : eofIndex){
+                if (text.indexOf(word.getEntry()) > eof){
+                    row++;
+                } else {
+                    return row;
+                }
+            }
+        }
+        return row;
     }
 }

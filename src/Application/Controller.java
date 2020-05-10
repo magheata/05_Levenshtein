@@ -71,7 +71,7 @@ public class Controller {
     }
 
     public boolean findWordInDicctionary(Word wordToFind) {
-        if (wordToFind.isSoundexWord()) {
+         if (wordToFind.isSoundexWord()) {
             Collection<String> collection = dict.get(Soundex.soundex(wordToFind.getEntry()));
             for (String homophone : collection) {
                 int distance = spellChecker.levenshtein(wordToFind.getEntry(), homophone);
@@ -130,7 +130,7 @@ public class Controller {
     }
 
     public void checkText() {
-        String[] wordsInText = notepad.getText().split(" ");
+        String[] wordsInText = notepad.getText().split(Constants.SYMBOLS_STRING);
         Word word;
         for (String wordToFind : wordsInText) {
             word = new Word(wordToFind, dictionary.getType().equals(Constants.PATH_DICC_EN) ? true : false);
@@ -138,12 +138,17 @@ public class Controller {
                 System.out.println("Word \"" + wordToFind + "\" exists");
             } else {
                 notepad.underlineMispelledWord(word);
+                int row = notepad.getWordRow(word);
+                word.setLine(row);
+                word.setPos(notepad.getText().indexOf(word.getEntry()));
+                mispelledWords.add(word);
                 System.out.println("Word \"" + wordToFind + "\" could not be found. Maybe you meant: ");
                 for (Word replaceWord : word.getReplaceWords(1)) {
                     System.out.println(replaceWord.getEntry());
                 }
             }
         }
+        System.out.println(mispelledWords);
     }
 
     public void populateDict(String filename) throws IOException {
@@ -183,6 +188,7 @@ public class Controller {
 
     public void setSelectedLanguage(Language selectedLanguage){
         notepad.removeHighlights();
+        mispelledWords.clear();
         this.selectedLanguage = selectedLanguage;
         if (languageDictionary.get(selectedLanguage.getName()) == null){
             if (Constants.SOUNDEX_DICTIONARIES.contains(selectedLanguage.getName())){
@@ -194,6 +200,11 @@ public class Controller {
             }
         }
         dictionary = languageDictionary.get(selectedLanguage.getName());
+        if (Constants.SOUNDEX_DICTIONARIES.contains(selectedLanguage.getName())) {
+            isSoundexDictionary = true;
+        } else {
+            isSoundexDictionary = false;
+        }
         checkText();
     }
 
