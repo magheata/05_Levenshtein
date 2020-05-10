@@ -33,6 +33,11 @@ public class Controller {
     private HashMap<String, Dictionary> languageDictionary = new HashMap<>();
     private HashMap<String, String> dictionaryPath = new HashMap<>();
     private HashMap<String, Language> availableLanguages = new HashMap<>();
+
+    public HashMap<Integer, Word> getMispelledWordsCursorEnd() {
+        return mispelledWordsCursorEnd;
+    }
+
     private HashMap<Integer, Word> mispelledWordsCursorEnd = new HashMap<>();
 
     private ArrayList<Word> mispelledWords = new ArrayList<>();
@@ -240,11 +245,18 @@ public class Controller {
         if(mispelledWordsCursorEnd.get(word.getPos()) != null){
             mispelledWordsCursorEnd.remove(word.getPos());
             mispelledWordsCursorEnd.put(word.getPos(), word);
+        } else {
+            mispelledWordsCursorEnd.put(word.getPos(), word);
         }
         System.out.println(mispelledWords.toString());
     }
 
     public boolean isSoundexDictionary(){
         return isSoundexDictionary;
+    }
+
+    public void deleteMispelledWord(int idx) {
+        mispelledWords.remove(mispelledWordsCursorEnd.get(idx));
+        mispelledWordsCursorEnd.remove(idx);
     }
 }

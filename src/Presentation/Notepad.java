@@ -16,8 +16,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -141,13 +140,25 @@ public class Notepad extends JTextPane {
     }
 
     private void checkWrittenWordInPanel(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_DELETE){
+        JTextPane textPane = (JTextPane) e.getComponent();
+        int startCursor = textPane.getCaretPosition();
+        String text = textPane.getText();
 
+        System.out.println(e.getKeyCode());
+        if (e.getKeyCode() == 8){
+            if (text.charAt(startCursor - 1) != ' '){
+                Map<Integer, Word> mispelledWordsCursor = new TreeMap<>(controller.getMispelledWordsCursorEnd());
+                Object[] keys = mispelledWordsCursor.keySet().toArray();
+                int idx = 0;
+                while (startCursor > (int) keys[idx]){
+                    idx++;
+                }
+                Word word = mispelledWordsCursor.get(keys[idx]);
+                System.out.println(word);
+                controller.deleteMispelledWord((int) keys[idx]);
+                removeHighlightForWord((int) keys[idx] - 1, word.getEntry().length());
+            }
         } else {
-            JTextPane textPane = (JTextPane) e.getComponent();
-            int startCursor = textPane.getCaretPosition();
-            String text = textPane.getText();
-
             if ((0 < startCursor) && (startCursor <= text.length())) {
                 int auxIdx = startCursor - 1;
                 char charAtCursor = text.charAt(auxIdx);
@@ -242,5 +253,15 @@ public class Notepad extends JTextPane {
             }
         }
         return row;
+    }
+
+    private void removeHighlightForWord(int cursorPos, int length){
+        Highlighter.Highlight[] highlights = highlighter.getHighlights();
+        for (Highlighter.Highlight highlight : highlights){
+            if ((highlight.getStartOffset() == (cursorPos - length)) && (highlight.getEndOffset() == cursorPos)){
+                highlighter.removeHighlight(highlight);
+            }
+        }
+        Highlighter.Highlight highlight = highlights[0];
     }
 }
