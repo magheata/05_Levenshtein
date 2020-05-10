@@ -227,16 +227,18 @@ public class Controller {
 
     public void addMispelledWord(Word word){
         word.setMispelled(true);
+        boolean duplicate = false;
         ArrayList<Word> auxMispelledWord = (ArrayList<Word>) mispelledWords.clone();
         if (auxMispelledWord.size() > 0){
             for (Word mispelledWord : auxMispelledWord){
                 if (word.getEntry().equals(mispelledWord.getEntry())){
-                    if (!word.isSameWord(mispelledWord)){
-                        mispelledWords.add(word);
+                    if (word.isSameWord(mispelledWord)){
+                        duplicate = true;
                     }
-                } else {
-                    mispelledWords.add(word);
                 }
+            }
+            if (!duplicate){
+                mispelledWords.add(word);
             }
         } else {
             mispelledWords.add(word);
