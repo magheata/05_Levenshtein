@@ -7,8 +7,7 @@ import Domain.SoundexDictionary;
 import Domain.Word;
 import Infrastructure.Soundex;
 import Infrastructure.SpellChecker;
-import Presentation.Notepad;
-import Presentation.Window;
+import Presentation.*;
 import Utils.Constants;
 import Utils.MultiMap;
 import Utils.Utils;
@@ -19,6 +18,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class Controller {
 
@@ -28,21 +30,20 @@ public class Controller {
     private Language selectedLanguage;
     private Window window;
     private Notepad notepad;
-    private Dictionary dictionary;
+    private static Dictionary dictionary;
     private MultiMap<String, String> dict = new MultiMap<String, String>();
     private HashMap<String, Dictionary> languageDictionary = new HashMap<>();
     private HashMap<String, String> dictionaryPath = new HashMap<>();
     private HashMap<String, Language> availableLanguages = new HashMap<>();
-
-    public HashMap<Integer, Word> getMispelledWordsCursorEnd() {
-        return mispelledWordsCursorEnd;
-    }
-
     private HashMap<Integer, Word> mispelledWordsCursorEnd = new HashMap<>();
 
     private ArrayList<Word> mispelledWords = new ArrayList<>();
 
+    private boolean dictPopulated = false;
+
     private boolean isSoundexDictionary;
+
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public Controller() {
         initApplication();
@@ -50,11 +51,25 @@ public class Controller {
         spellChecker = new SpellChecker();
     }
 
+    private static ArrayList<Word> getWords(String input) {
+        //the suggestion provider can control text search related stuff, e.g case insensitive match, the search  limit etc.
+        if (input.isEmpty()) {
+            return null;
+        }
+        return (ArrayList<Word>) dictionary.getEntries().stream()
+                .filter(s -> s.getEntry().startsWith(input))
+                .limit(20)
+                .collect(Collectors.toList());
+    }
+
     private void initApplication() {
         utils = new Utils();
         loadAvailableLanguages();
     }
 
+    private static ArrayList<Word> getWords(){
+        return dictionary.getEntries();
+    }
     private void loadAvailableLanguages(){
         ArrayList<File> dictionaries = utils.listFilesForFolder(new File("dicc/"));
         for (File dictionary : dictionaries){
@@ -76,41 +91,42 @@ public class Controller {
     }
 
     public boolean findWordInDicctionary(Word wordToFind) {
-         if (wordToFind.isSoundexWord()) {
-            Collection<String> collection = dict.get(Soundex.soundex(wordToFind.getEntry()));
-            for (String homophone : collection) {
-                int distance = spellChecker.levenshtein(wordToFind.getEntry(), homophone);
-                if (distance == 0) {
-                    return true;
-                } else {
-                    if (!wordToFind.replaceWordsInitialized()) {
-                        for (int i = 1; i <= 2; i++) {
-                            wordToFind.addDistance(i);
+        if (!wordToFind.getEntry().equals("") && !wordToFind.getEntry().equals(" ")){
+            if (wordToFind.isSoundexWord()) {
+                Collection<String> collection = dict.get(Soundex.soundex(wordToFind.getEntry()));
+                for (String homophone : collection) {
+                    int distance = spellChecker.levenshtein(wordToFind.getEntry(), homophone);
+                    if (distance == 0) {
+                        return true;
+                    } else {
+                        if (!wordToFind.replaceWordsInitialized()) {
+                            for (int i = 1; i <= 2; i++) {
+                                wordToFind.addDistance(i);
+                            }
                         }
-                    }
-                    if ((distance < 3)) {
-                        wordToFind.addReplaceWord(new Word(distance, homophone, true));
+                        if ((distance < 3)) {
+                            wordToFind.addReplaceWord(new Word(distance, homophone, true));
+                        }
                     }
                 }
-            }
-        } else {
-            for (Word word : dictionary.getEntries()) {
-                int distance = spellChecker.levenshtein(wordToFind.getEntry(), word.getEntry());
-                if (distance == 0) {
-                    return true;
-                } else {
-                    if (!wordToFind.replaceWordsInitialized()) {
-                        for (int i = 1; i <= 2; i++) {
-                            wordToFind.addDistance(i);
+            } else {
+                for (Word word : dictionary.getEntries()) {
+                    int distance = spellChecker.levenshtein(wordToFind.getEntry(), word.getEntry());
+                    if (distance == 0) {
+                        return true;
+                    } else {
+                        if (!wordToFind.replaceWordsInitialized()) {
+                            for (int i = 1; i <= 2; i++) {
+                                wordToFind.addDistance(i);
+                            }
                         }
-                    }
-                    if ((distance < 3)) {
-                        wordToFind.addReplaceWord(new Word(distance, word.getEntry(), false));
+                        if ((distance < 3)) {
+                            wordToFind.addReplaceWord(new Word(distance, word.getEntry(), false));
+                        }
                     }
                 }
             }
         }
-
         return false;
     }
 
@@ -118,42 +134,21 @@ public class Controller {
         return reader.getFileContent(path);
     }
 
-    public void checkText(String path) {
-        ArrayList<String> wordsInText = reader.readFile(path);
-        Word word;
-        for (String wordToFind : wordsInText) {
-            word = new Word(wordToFind, dictionary.getType().equals(Constants.PATH_DICC_EN) ? true : false);
-            if (findWordInDicctionary(word)) {
-                System.out.println("Word \"" + wordToFind + "\" exists");
-            } else {
-                System.out.println("Word \"" + wordToFind + "\" could not be found. Maybe you meant: ");
-                for (Word replaceWord : word.getReplaceWords(1)) {
-                    System.out.println(replaceWord.getEntry());
-                }
-            }
-        }
-    }
-
     public void checkText() {
         String[] wordsInText = notepad.getText().split(Constants.SYMBOLS_STRING);
         Word word;
         for (String wordToFind : wordsInText) {
-            word = new Word(wordToFind, dictionary.getType().equals(Constants.PATH_DICC_EN) ? true : false);
-            if (findWordInDicctionary(word)) {
-                System.out.println("Word \"" + wordToFind + "\" exists");
-            } else {
-                notepad.underlineMispelledWord(word);
-                int row = notepad.getWordRow(word);
-                word.setLine(row);
-                word.setPos(notepad.getText().indexOf(word.getEntry()));
-                mispelledWords.add(word);
-                System.out.println("Word \"" + wordToFind + "\" could not be found. Maybe you meant: ");
-                for (Word replaceWord : word.getReplaceWords(1)) {
-                    System.out.println(replaceWord.getEntry());
+            if ((!wordToFind.equals("")) && (!wordToFind.equals(" "))){
+                word = new Word(wordToFind, dictionary.getType().equals(Constants.PATH_DICC_EN) ? true : false);
+                if (!findWordInDicctionary(word)) {
+                    notepad.underlineMispelledWord(word);
+                    int row = notepad.getWordRow(word);
+                    word.setLine(row);
+                    word.setPos(notepad.getText().indexOf(word.getEntry()));
+                    mispelledWords.add(word);
                 }
             }
         }
-        System.out.println(mispelledWords);
     }
 
     public void populateDict(String filename) throws IOException {
@@ -166,15 +161,12 @@ public class Controller {
         }
     }
 
-    public JFileChooser getFileChooser() {
-        return window.getFileChooser();
-    }
-
     public void openFileChooser(boolean isEditable) {
         switch (window.getFileChooser().showOpenDialog(window)) {
             case JFileChooser.APPROVE_OPTION:
                 notepad.setNotepadText(reader.getFileContent(window.getFileChooser().getSelectedFile().getAbsolutePath()));
                 notepad.setNotepadEditable(isEditable);
+                executor.submit(() -> checkText());
                 break;
         }
     }
@@ -198,19 +190,25 @@ public class Controller {
         if (languageDictionary.get(selectedLanguage.getName()) == null){
             if (Constants.SOUNDEX_DICTIONARIES.contains(selectedLanguage.getName())){
                 languageDictionary.put(selectedLanguage.getName(), importSoundexDicctionary(dictionaryPath.get(selectedLanguage.getName())));
-                isSoundexDictionary = true;
             } else {
                 languageDictionary.put(selectedLanguage.getName(), importDicctionary(dictionaryPath.get(selectedLanguage.getName())));
-                isSoundexDictionary = false;
             }
         }
         dictionary = languageDictionary.get(selectedLanguage.getName());
         if (Constants.SOUNDEX_DICTIONARIES.contains(selectedLanguage.getName())) {
             isSoundexDictionary = true;
+            if (!dictPopulated){
+                try {
+                    populateDict(Constants.PATH_DICC_EN);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         } else {
             isSoundexDictionary = false;
         }
-        checkText();
+        SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordISuggestionClient(Controller::getWords));
+        executor.submit(() -> checkText());
     }
 
     public void setNotepad(Notepad notepad) {
@@ -219,10 +217,6 @@ public class Controller {
 
     public void setWindow(Window window) {
         this.window = window;
-    }
-
-    public MultiMap<String, String> getDict() {
-        return dict;
     }
 
     public void addMispelledWord(Word word){
@@ -260,5 +254,24 @@ public class Controller {
     public void deleteMispelledWord(int idx) {
         mispelledWords.remove(mispelledWordsCursorEnd.get(idx));
         mispelledWordsCursorEnd.remove(idx);
+    }
+
+    public HashMap<Integer, Word> getMispelledWordsCursorEnd() {
+        return mispelledWordsCursorEnd;
+    }
+
+    public Object[] isMispelledWord(Word word){
+        Iterator it = mispelledWords.iterator();
+        while(it.hasNext()){
+            Word mispelledWord = (Word) it.next();
+            if (mispelledWord.getEntry().equals(word.getEntry())){
+                return new Object[]{true, mispelledWord};
+            }
+        }
+        return new Object[]{false, null};
+    }
+
+    public void addWordsList(JList list){
+        window.add(list);
     }
 }

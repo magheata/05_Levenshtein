@@ -5,6 +5,7 @@ import Application.Controller;
 import Utils.Constants;
 
 import javax.swing.*;
+import java.io.File;
 
 public class Menu {
 
@@ -32,12 +33,17 @@ public class Menu {
         newFileMenuItem = new JMenuItem("File");
         newFileMenuItem.addActionListener(e -> controller.enableNotepad(true));
         newFileFromExistingMenuItem = new JMenuItem("File from existing sources...");
-        newFileFromExistingMenuItem.addActionListener(e -> controller.openFileChooser(true));
+
+        newFileFromExistingMenuItem.addActionListener(e ->
+        {
+            controller.openFileChooser(true);
+        });
+
         newFileMenu.add(newFileMenuItem);
         newFileMenu.add(newFileFromExistingMenuItem);
 
         openExistingMenuItem = new JMenuItem("Open existing file...");
-        openExistingMenuItem.addActionListener(e -> controller.openFileChooser(false));
+        openExistingMenuItem.addActionListener(e -> controller.openFileChooser(false) );
         openFileMenu.add(openExistingMenuItem);
     }
 
