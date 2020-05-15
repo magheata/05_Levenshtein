@@ -31,17 +31,18 @@ public class Controller {
     private Window window;
     private Notepad notepad;
     private static Dictionary dictionary;
+
     private MultiMap<String, String> dict = new MultiMap<String, String>();
     private HashMap<String, Dictionary> languageDictionary = new HashMap<>();
     private HashMap<String, String> dictionaryPath = new HashMap<>();
     private HashMap<String, Language> availableLanguages = new HashMap<>();
     private HashMap<Integer, Word> mispelledWordsCursorEnd = new HashMap<>();
 
-    private ArrayList<Word> mispelledWords = new ArrayList<>();
+    private static ArrayList<Word> mispelledWords = new ArrayList<>();
 
     private boolean dictPopulated = false;
 
-    private boolean isSoundexDictionary;
+    private static boolean isSoundexDictionary;
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -207,8 +208,22 @@ public class Controller {
         } else {
             isSoundexDictionary = false;
         }
-        SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordISuggestionClient(Controller::getWords));
+        SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordSuggestionClient(Controller::getWords));
+        SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordReplace(Controller::getReplaceWords), this);
+
         executor.submit(() -> checkText());
+    }
+
+    private static ArrayList<Word> getReplaceWords(String input) {
+        Word word = new Word(input, isSoundexDictionary);
+        Iterator it = mispelledWords.iterator();
+        while (it.hasNext()){
+            Word mispelledWord = (Word) it.next();
+            if (mispelledWord.getEntry().equals(input)){
+                return mispelledWord.getReplaceWords(1);
+            }
+        }
+        return null;
     }
 
     public void setNotepad(Notepad notepad) {
@@ -269,9 +284,5 @@ public class Controller {
             }
         }
         return new Object[]{false, null};
-    }
-
-    public void addWordsList(JList list){
-        window.add(list);
     }
 }

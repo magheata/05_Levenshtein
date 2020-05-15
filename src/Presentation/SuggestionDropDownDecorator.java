@@ -1,6 +1,7 @@
 /* Created by andreea on 15/05/2020 */
 package Presentation;
 
+import Application.Controller;
 import Domain.Interfaces.ISuggestionClient;
 import Domain.Word;
 
@@ -9,33 +10,46 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 public class SuggestionDropDownDecorator <C extends JComponent> {
     private final C invoker;
-    private final ISuggestionClient<C> suggestionClient;
+    private ISuggestionClient<C> client;
+
     private JPopupMenu popupMenu;
     private JList<String> listComp;
     private DefaultListModel<String> listModel;
     private boolean disableTextEvent;
+    private boolean replace;
+    private Controller controller;
 
-    public SuggestionDropDownDecorator(C invoker, ISuggestionClient<C> suggestionClient) {
+
+    public SuggestionDropDownDecorator(C invoker, ISuggestionClient<C> client, Controller controller) {
         this.invoker = invoker;
-        this.suggestionClient = suggestionClient;
+        this.controller = controller;
+        this.client = client;
+    }
+
+
+    public SuggestionDropDownDecorator(C invoker, ISuggestionClient<C> client) {
+        this.invoker = invoker;
+        this.client = client;
     }
 
     public static <C extends JComponent> void decorate(C component, ISuggestionClient<C> suggestionClient) {
         SuggestionDropDownDecorator<C> d = new SuggestionDropDownDecorator<>(component, suggestionClient);
-        d.init();
+        d.initSuggestionCompListener();
+        d.initInvokerKeyListeners();
+        d.initPopup();
     }
 
-    public void init() {
-        initPopup();
-        initSuggestionCompListener();
-        initInvokerKeyListeners();
+    public static <C extends JComponent> void decorate(C component, ISuggestionClient<C> suggestionClient, Controller controller) {
+        SuggestionDropDownDecorator<C> d = new SuggestionDropDownDecorator<>(component, suggestionClient, controller);
+        d.initInvokerMouseListener();
+        d.initInvokerKeyListeners();
+        d.initPopup();
     }
 
     private void initPopup() {
@@ -72,10 +86,9 @@ public class SuggestionDropDownDecorator <C extends JComponent> {
                         return;
                     }
                     SwingUtilities.invokeLater(() -> {
-                        ArrayList<Word> suggestions = suggestionClient.getSuggestions(invoker);
+                        ArrayList<Word> suggestions = client.get(invoker);
                         ArrayList<String> suggestionsList = new ArrayList<>();
                         if (suggestions != null && !suggestions.isEmpty()) {
-
                             Iterator it = suggestions.iterator();
                             while (it.hasNext()){
                                 Word suggestion = (Word) it.next();
@@ -91,10 +104,20 @@ public class SuggestionDropDownDecorator <C extends JComponent> {
         }//todo init invoker components other than text components
     }
 
+    public void showReplaceWords(ArrayList<String> replaceWord){
+        SwingUtilities.invokeLater(() -> {
+            if (replaceWord != null && !replaceWord.isEmpty()) {
+                showPopup(replaceWord);
+            } else {
+                popupMenu.setVisible(false);
+            }
+        });
+    }
+
     private void showPopup(ArrayList<String> suggestions) {
         listModel.clear();
         suggestions.forEach(listModel::addElement);
-        Point p = suggestionClient.getPopupLocation(invoker);
+        Point p = client.getPopupLocation(invoker);
         if (p == null) {
             return;
         }
@@ -121,6 +144,26 @@ public class SuggestionDropDownDecorator <C extends JComponent> {
         });
     }
 
+    private void initInvokerMouseListener(){
+        invoker.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                ArrayList<Word> replacements = client.get(invoker);
+                ArrayList<String> replacementsList = new ArrayList<>();
+                if (replacements != null && !replacements.isEmpty()) {
+                    Iterator it = replacements.iterator();
+                    while (it.hasNext()){
+                        Word suggestion = (Word) it.next();
+                        replacementsList.add(suggestion.getEntry());
+                    }
+                    showPopup(replacementsList);
+                } else {
+                    popupMenu.setVisible(false);
+                }
+            }
+        });
+    }
+
     private void selectFromList(KeyEvent e) {
         if (popupMenu.isVisible()) {
             int selectedIndex = listComp.getSelectedIndex();
@@ -128,7 +171,7 @@ public class SuggestionDropDownDecorator <C extends JComponent> {
                 popupMenu.setVisible(false);
                 String selectedValue = listComp.getSelectedValue();
                 disableTextEvent = true;
-                suggestionClient.setSelectedText(invoker, selectedValue);
+                client.setSelectedText(invoker, selectedValue);
                 disableTextEvent = false;
                 e.consume();
             }

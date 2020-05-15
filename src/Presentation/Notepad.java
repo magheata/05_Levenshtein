@@ -143,6 +143,7 @@ public class Notepad extends JTextPane {
                             Word replaceWord = (Word) it.next();
                             replaceStringWords.add(replaceWord.getEntry());
                         }
+                        /*
                         replaceWordsList = new JList(replaceStringWords.toArray());
                         JScrollPane scrollPane = new JScrollPane(replaceWordsList);
                         Point p = getPopupLocation(start);
@@ -154,7 +155,7 @@ public class Notepad extends JTextPane {
                         popupMenu.add(replaceWordsList);
                         popupMenu.setVisible(true);
                         popupMenu.pack();
-                        popupMenu.show(this, (int) p.getX(), (int) p.getY());
+                        popupMenu.show(this, (int) p.getX(), (int) p.getY());*/
                     }
                     if (eof) {
                     } else {
