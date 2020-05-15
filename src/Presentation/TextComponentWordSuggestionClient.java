@@ -63,7 +63,8 @@ public class TextComponentWordSuggestionClient implements ISuggestionClient<JTex
             }
             int previousWordIndex = Utilities.getPreviousWord(tp, cp);
             String text = tp.getText(previousWordIndex, cp - previousWordIndex);
-            return suggestionProvider.apply(text.trim());
+            ArrayList<Word> suggestions = suggestionProvider.apply(text.trim());
+            return (ArrayList<Word>) suggestions.subList(1, suggestions.size() - 1);
         } catch (BadLocationException e) {
             System.err.println(e);
         }

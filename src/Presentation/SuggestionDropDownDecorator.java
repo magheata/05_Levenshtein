@@ -88,13 +88,16 @@ public class SuggestionDropDownDecorator <C extends JComponent> {
                     SwingUtilities.invokeLater(() -> {
                         ArrayList<Word> suggestions = client.get(invoker);
                         ArrayList<String> suggestionsList = new ArrayList<>();
+
                         if (suggestions != null && !suggestions.isEmpty()) {
-                            Iterator it = suggestions.iterator();
-                            while (it.hasNext()){
-                                Word suggestion = (Word) it.next();
-                                suggestionsList.add(suggestion.getEntry());
+                            if (!suggestionsList.contains(invoker)){
+                                Iterator it = suggestions.iterator();
+                                while (it.hasNext()){
+                                    Word suggestion = (Word) it.next();
+                                    suggestionsList.add(suggestion.getEntry());
+                                }
+                                showPopup(suggestionsList);
                             }
-                            showPopup(suggestionsList);
                         } else {
                             popupMenu.setVisible(false);
                         }
@@ -102,16 +105,6 @@ public class SuggestionDropDownDecorator <C extends JComponent> {
                 }
             });
         }//todo init invoker components other than text components
-    }
-
-    public void showReplaceWords(ArrayList<String> replaceWord){
-        SwingUtilities.invokeLater(() -> {
-            if (replaceWord != null && !replaceWord.isEmpty()) {
-                showPopup(replaceWord);
-            } else {
-                popupMenu.setVisible(false);
-            }
-        });
     }
 
     private void showPopup(ArrayList<String> suggestions) {

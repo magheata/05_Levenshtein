@@ -68,9 +68,6 @@ public class Controller {
         loadAvailableLanguages();
     }
 
-    private static ArrayList<Word> getWords(){
-        return dictionary.getEntries();
-    }
     private void loadAvailableLanguages(){
         ArrayList<File> dictionaries = utils.listFilesForFolder(new File("dicc/"));
         for (File dictionary : dictionaries){
