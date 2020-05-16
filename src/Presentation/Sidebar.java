@@ -47,7 +47,7 @@ public class Sidebar extends JPanel {
         checkBox = new SteelCheckBox();
         checkBox.setText("Enable suggestions");
         checkBox.setColored(true);
-        checkBox.setSelectedColor(ColorDef.ORANGE);
+        checkBox.setSelectedColor(ColorDef.RAITH);
         this.setVisible(true);
         this.setLayout(new BorderLayout());
         this.setSize(Constants.DIM_SIDEBAR);
