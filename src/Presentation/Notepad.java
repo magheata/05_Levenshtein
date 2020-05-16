@@ -17,6 +17,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import Presentation.Sidebar;
 
 public class Notepad extends JTextPane {
 
@@ -209,6 +210,7 @@ public class Notepad extends JTextPane {
                                 writtenWord.setPos(startCursor);
                                 writtenWord.setLine(getCurrentRow(startCursor));
                                 controller.addMispelledWord(writtenWord);
+                                controller.addToModel(writtenWord);
                                 highlighter.addHighlight(auxIdx == 0 ? auxIdx : auxIdx + 1, (auxIdx == 0 ? auxIdx : auxIdx + 1) + word.length(), painter);
                             } catch (BadLocationException badLocationException) {
                                 badLocationException.printStackTrace();

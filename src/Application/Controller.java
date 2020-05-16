@@ -271,7 +271,10 @@ public class Controller {
         return new Object[]{false, null};
     }
 
-    public void addWordsList(JList list){
-        window.add(list);
+
+    public void addToModel(Word w){window.addToModel(w);}
+
+    public Word getWord(int x){
+        return mispelledWords.get(x);
     }
 }
