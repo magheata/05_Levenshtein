@@ -12,10 +12,10 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.function.Function;
 
-public class TextComponentWordISuggestionClient implements ISuggestionClient<JTextComponent> {
+public class TextComponentWordSuggestionClient implements ISuggestionClient<JTextComponent> {
     private Function<String, ArrayList<Word>> suggestionProvider;
 
-    public TextComponentWordISuggestionClient(Function<String, ArrayList<Word>> suggestionProvider) {
+    public TextComponentWordSuggestionClient(Function<String, ArrayList<Word>> suggestionProvider) {
         this.suggestionProvider = suggestionProvider;
     }
 
@@ -52,7 +52,7 @@ public class TextComponentWordISuggestionClient implements ISuggestionClient<JTe
     }
 
     @Override
-    public ArrayList<Word> getSuggestions(JTextComponent tp) {
+    public ArrayList<Word> get(JTextComponent tp) {
         try {
             int cp = tp.getCaretPosition();
             if (cp != 0) {
@@ -63,7 +63,8 @@ public class TextComponentWordISuggestionClient implements ISuggestionClient<JTe
             }
             int previousWordIndex = Utilities.getPreviousWord(tp, cp);
             String text = tp.getText(previousWordIndex, cp - previousWordIndex);
-            return suggestionProvider.apply(text.trim());
+            ArrayList<Word> suggestions = suggestionProvider.apply(text.trim());
+            return (ArrayList<Word>) suggestions.subList(1, suggestions.size() - 1);
         } catch (BadLocationException e) {
             System.err.println(e);
         }

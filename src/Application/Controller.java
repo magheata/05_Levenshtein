@@ -37,11 +37,11 @@ public class Controller {
     private HashMap<String, Language> availableLanguages = new HashMap<>();
     private HashMap<Integer, Word> mispelledWordsCursorEnd = new HashMap<>();
 
-    private ArrayList<Word> mispelledWords = new ArrayList<>();
+    private static ArrayList<Word> mispelledWords = new ArrayList<>();
 
     private boolean dictPopulated = false;
 
-    private boolean isSoundexDictionary;
+    private static boolean isSoundexDictionary;
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -67,9 +67,6 @@ public class Controller {
         loadAvailableLanguages();
     }
 
-    private static ArrayList<Word> getWords(){
-        return dictionary.getEntries();
-    }
     private void loadAvailableLanguages(){
         ArrayList<File> dictionaries = utils.listFilesForFolder(new File("dicc/"));
         for (File dictionary : dictionaries){
@@ -207,8 +204,22 @@ public class Controller {
         } else {
             isSoundexDictionary = false;
         }
-        SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordISuggestionClient(Controller::getWords));
+        SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordSuggestionClient(Controller::getWords));
+        SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordReplace(Controller::getReplaceWords), this);
+
         executor.submit(() -> checkText());
+    }
+
+    private static ArrayList<Word> getReplaceWords(String input) {
+        Word word = new Word(input, isSoundexDictionary);
+        Iterator it = mispelledWords.iterator();
+        while (it.hasNext()){
+            Word mispelledWord = (Word) it.next();
+            if (mispelledWord.getEntry().equals(input)){
+                return mispelledWord.getReplaceWords(1);
+            }
+        }
+        return null;
     }
 
     public void setNotepad(Notepad notepad) {

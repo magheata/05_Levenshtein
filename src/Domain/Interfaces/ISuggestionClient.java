@@ -8,11 +8,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public interface ISuggestionClient<C extends JComponent> {
-
     Point getPopupLocation(C invoker);
-
     void setSelectedText(C invoker, String selectedValue);
-
-    ArrayList<Word> getSuggestions(C invoker);
-
+    ArrayList<Word> get(C invoker);
 }
