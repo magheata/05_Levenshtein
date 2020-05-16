@@ -65,7 +65,7 @@ public class Sidebar extends JPanel {
         lista.addListSelectionListener(le -> {
             if (!le.getValueIsAdjusting()) {
                 idx = lista.getSelectedIndex();
-                System.out.println(controller.getWord(idx).getEntry());
+                //System.out.println(controller.getWord(idx));
 
             }
         });
@@ -80,7 +80,7 @@ public class Sidebar extends JPanel {
 
     //Añade un elemento a la barra lateral
     public void addToModel(Word w) {
-        listModel.addElement(w);
+        listModel.addElement(w.getEntry());
         erroresArrayList.add(w);
         System.out.println(w.getEntry());
         this.repaint();
@@ -88,7 +88,7 @@ public class Sidebar extends JPanel {
 
     //Quita un elemento de la lista de la barra lateral
     public void removeFromModel(Word word) {
-        listModel.remove(listModel.indexOf(word));
+        listModel.remove(listModel.indexOf(word.getEntry()));
         this.repaint();
     }
 }

@@ -327,12 +327,11 @@ public class Controller {
         }
     }
 
-
     public void addToModel(Word w) {
         window.addToModel(w);
     }
 
-    public Word getWord(int x) {
-        return mispelledWords.get(x);
+    public void getWord(int x) {
+        //return mispelledWords.get(x);
     }
 }
