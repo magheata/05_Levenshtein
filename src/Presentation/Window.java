@@ -2,6 +2,7 @@
 package Presentation;
 
 import Application.Controller;
+import Domain.Word;
 import Utils.Constants;
 
 import javax.swing.*;
@@ -53,5 +54,13 @@ public class Window extends JFrame {
 
     public void openFileChooser() {
         fileChooser.showOpenDialog(this);
+    }
+
+    public void addToModel(Word w){
+        sideBarPanel.addToModel(w);
+    }
+
+    public void removeFromModel(int x){
+        sideBarPanel.removeFromModel(x);
     }
 }

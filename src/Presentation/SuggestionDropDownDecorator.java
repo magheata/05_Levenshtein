@@ -126,6 +126,8 @@ public class SuggestionDropDownDecorator <C extends JComponent> {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     selectFromList(e);
+                } else if (e.getKeyCode() == KeyEvent.VK_TAB) {
+                    selectFromList(e);
                 } else if (e.getKeyCode() == KeyEvent.VK_UP) {
                     moveUp(e);
                 } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
@@ -154,10 +156,30 @@ public class SuggestionDropDownDecorator <C extends JComponent> {
                     popupMenu.setVisible(false);
                 }
             }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                selectFromList(e);
+
+            }
         });
     }
 
     private void selectFromList(KeyEvent e) {
+        if (popupMenu.isVisible()) {
+            int selectedIndex = listComp.getSelectedIndex();
+            if (selectedIndex != -1) {
+                popupMenu.setVisible(false);
+                String selectedValue = listComp.getSelectedValue();
+                disableTextEvent = true;
+                client.setSelectedText(invoker, selectedValue);
+                disableTextEvent = false;
+                e.consume();
+            }
+        }
+    }
+
+    private void selectFromList(MouseEvent e) {
         if (popupMenu.isVisible()) {
             int selectedIndex = listComp.getSelectedIndex();
             if (selectedIndex != -1) {

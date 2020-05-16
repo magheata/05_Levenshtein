@@ -32,7 +32,6 @@ public class Controller {
     private Window window;
     private Notepad notepad;
     private static Dictionary dictionary;
-
     private MultiMap<String, String> dict = new MultiMap<String, String>();
     private HashMap<String, Dictionary> languageDictionary = new HashMap<>();
     private HashMap<String, String> dictionaryPath = new HashMap<>();
@@ -287,6 +286,7 @@ public class Controller {
         notepad.removeHighlightForWord(idx - wordLength, wordLength);
         mispelledWords.remove(mispelledWordsCursorEnd.get(idx));
         mispelledWordsCursorEnd.remove(idx);
+        window.removeFromModel(idx);
     }
 
     public HashMap<Integer, Word> getMispelledWordsCursorEnd() {
@@ -317,5 +317,12 @@ public class Controller {
             }
             mispelledWordsCursorEnd = mispelledWordsCursorEndAux;
         }
+    }
+
+
+    public void addToModel(Word w){window.addToModel(w);}
+
+    public Word getWord(int x){
+        return mispelledWords.get(x);
     }
 }
