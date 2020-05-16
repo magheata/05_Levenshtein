@@ -12,6 +12,10 @@ import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 
+import eu.hansolo.custom.*;
+import eu.hansolo.tools.ColorDef;
+
+
 public class Sidebar extends JPanel {
 
     private JComboBox languageSelector;
@@ -21,6 +25,9 @@ public class Sidebar extends JPanel {
     private ArrayList<Word> erroresArrayList;
     private JList<ArrayList> lista;
     private Word errorSeleccionado;
+    private SteelCheckBox checkBox;
+    private SteelCheckBoxUI checkBoxUI;
+
     private int idx;
     private JMenuBar menuIncorrectas;
 
@@ -32,6 +39,15 @@ public class Sidebar extends JPanel {
     private ArrayList<Language> languages;
 
     private void initComponents() {
+
+        JPanel wrapperPanel = new JPanel();
+
+        wrapperPanel.setLayout(new BorderLayout());
+        JPanel checkBoxPanel = new JPanel();
+        checkBox = new SteelCheckBox();
+        checkBox.setText("Enable suggestions");
+        checkBox.setColored(true);
+        checkBox.setSelectedColor(ColorDef.ORANGE);
         this.setVisible(true);
         this.setLayout(new BorderLayout());
         this.setSize(Constants.DIM_SIDEBAR);
@@ -56,6 +72,11 @@ public class Sidebar extends JPanel {
         });
         this.add(languageSelector, BorderLayout.NORTH);
 
+        checkBoxPanel.add(checkBox);
+
+        wrapperPanel.add(checkBoxPanel, BorderLayout.NORTH);
+        wrapperPanel.add(languageSelector, BorderLayout.SOUTH);
+        this.add(wrapperPanel, BorderLayout.NORTH);
 
         //Creación de la lista de ficheros
         listModel = new DefaultListModel();
@@ -80,15 +101,14 @@ public class Sidebar extends JPanel {
 
     //Añade un elemento a la barra lateral
     public void addToModel(Word w) {
-        listModel.addElement(w);
+        listModel.addElement(w.getEntry());
         erroresArrayList.add(w);
-        System.out.println(w.getEntry());
         this.repaint();
     }
 
     //Quita un elemento de la lista de la barra lateral
     public void removeFromModel(Word word) {
-        listModel.remove(listModel.indexOf(word));
+        listModel.remove(listModel.indexOf(word.getEntry()));
         this.repaint();
     }
 }

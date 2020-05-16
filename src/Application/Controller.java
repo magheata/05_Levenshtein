@@ -163,7 +163,6 @@ public class Controller {
                     word.setPos(notepad.getText().indexOf(word.getEntry()) + wordToFind.length());
                     addMispelledWord(word);
                     notepad.underlineMispelledWord(word);
-                    addToModel(word);
                 }
             }
         }
@@ -264,9 +263,11 @@ public class Controller {
             }
             if (!duplicate) {
                 mispelledWords.add(word);
+                addToModel(word);
             }
         } else {
             mispelledWords.add(word);
+            addToModel(word);
         }
 
         if (mispelledWordsCursorEnd.get(word.getPos()) != null) {

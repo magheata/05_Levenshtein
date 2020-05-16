@@ -60,6 +60,12 @@ public class SuggestionDropDownDecorator <C extends JComponent> {
         listComp.setFocusable(false);
         popupMenu.setFocusable(false);
         popupMenu.add(listComp);
+        listComp.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                selectFromList(e);
+            }
+        });
     }
 
     private void initSuggestionCompListener() {
@@ -155,11 +161,6 @@ public class SuggestionDropDownDecorator <C extends JComponent> {
                 } else {
                     popupMenu.setVisible(false);
                 }
-            }
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                //selectFromList(e);
             }
         });
     }

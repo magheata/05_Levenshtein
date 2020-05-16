@@ -204,8 +204,6 @@ public class Notepad extends JTextPane {
                                     highlighter.addHighlight(auxIdx, auxIdx + word.length(), painter);
                                     highlights = new ArrayList<>(Arrays.asList(highlighter.getHighlights()));
                                 }
-                                printHighlights();
-                                controller.addToModel(writtenWord);
                                 highlighter.addHighlight(auxIdx == 0 ? auxIdx : auxIdx + 1, (auxIdx == 0 ? auxIdx : auxIdx + 1) + word.length(), painter);
                             } catch (BadLocationException badLocationException) {
                                 badLocationException.printStackTrace();
@@ -243,7 +241,6 @@ public class Notepad extends JTextPane {
                 highlighter.addHighlight(indexWord, indexWord + word.getEntry().length(), painter);
                 highlights = new ArrayList<>(Arrays.asList(highlighter.getHighlights()));
             }
-            printHighlights();
         } catch (BadLocationException e) {
             e.printStackTrace();
         }

@@ -45,6 +45,7 @@ public class Window extends JFrame {
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
         this.add(notepadScrollPanel, BorderLayout.WEST);
+        this.add(new JSeparator(SwingConstants.VERTICAL));
         this.add(sideBarPanel, BorderLayout.EAST);
 
         this.setJMenuBar(menuPanel.getMenuBar());
