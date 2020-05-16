@@ -37,7 +37,6 @@ public class Controller {
     private HashMap<String, String> dictionaryPath = new HashMap<>();
     private HashMap<String, Language> availableLanguages = new HashMap<>();
     private HashMap<Integer, Word> mispelledWordsCursorEnd = new HashMap<>();
-
     private static ArrayList<Word> mispelledWords = new ArrayList<>();
 
     private boolean dictPopulated = false;
@@ -54,7 +53,7 @@ public class Controller {
         this.highlights = highlights;
     }
 
-    private Highlighter.Highlight [] highlights;
+    private Highlighter.Highlight[] highlights;
 
 
     public Controller() {
@@ -71,12 +70,12 @@ public class Controller {
         }
         ArrayList<Word> words = (ArrayList<Word>)
                 dictionary.getEntries().stream()
-                .filter(s -> s.getEntry().startsWith(input))
-                .limit(20)
-                .collect(Collectors.toList());
+                        .filter(s -> s.getEntry().startsWith(input))
+                        .limit(20)
+                        .collect(Collectors.toList());
 
-        for (Word word: words){
-            if (word.getEntry().equals(input)){
+        for (Word word : words) {
+            if (word.getEntry().equals(input)) {
                 return new ArrayList<>(words.subList(1, words.size()));
             }
         }
@@ -88,9 +87,9 @@ public class Controller {
         loadAvailableLanguages();
     }
 
-    private void loadAvailableLanguages(){
+    private void loadAvailableLanguages() {
         ArrayList<File> dictionaries = utils.listFilesForFolder(new File("dicc/"));
-        for (File dictionary : dictionaries){
+        for (File dictionary : dictionaries) {
             String language = dictionary.getName().split("\\.")[0];
             Language newLanguage = new Language(language, new ImageIcon("src/Presentation/Images/" + language + ".png"));
             languageDictionary.put(newLanguage.getName(), null);
@@ -109,7 +108,7 @@ public class Controller {
     }
 
     public boolean findWordInDicctionary(Word wordToFind) {
-        if (!wordToFind.getEntry().equals("") && !wordToFind.getEntry().equals(" ")){
+        if (!wordToFind.getEntry().equals("") && !wordToFind.getEntry().equals(" ")) {
             if (wordToFind.isSoundexWord()) {
                 Collection<String> collection = dict.get(Soundex.soundex(wordToFind.getEntry()));
                 for (String homophone : collection) {
@@ -156,7 +155,7 @@ public class Controller {
         String[] wordsInText = notepad.getText().split(Constants.SYMBOLS_STRING);
         Word word;
         for (String wordToFind : wordsInText) {
-            if ((!wordToFind.equals("")) && (!wordToFind.equals(" "))){
+            if ((!wordToFind.equals("")) && (!wordToFind.equals(" "))) {
                 word = new Word(wordToFind, dictionary.getType().equals(Constants.PATH_DICC_EN) ? true : false);
                 if (!findWordInDicctionary(word)) {
                     int row = notepad.getWordRow(word);
@@ -164,6 +163,7 @@ public class Controller {
                     word.setPos(notepad.getText().indexOf(word.getEntry()) + wordToFind.length());
                     addMispelledWord(word);
                     notepad.underlineMispelledWord(word);
+                    addToModel(word);
                 }
             }
         }
@@ -194,19 +194,20 @@ public class Controller {
     }
 
     public ArrayList<Language> getLanguages() {
-        ArrayList<Language> langs = new ArrayList<>();;
-        for (String language : dictionaryPath.keySet()){
+        ArrayList<Language> langs = new ArrayList<>();
+        ;
+        for (String language : dictionaryPath.keySet()) {
             langs.add(availableLanguages.get(language));
         }
         return langs;
     }
 
-    public void setSelectedLanguage(Language selectedLanguage){
+    public void setSelectedLanguage(Language selectedLanguage) {
         notepad.removeHighlights();
         mispelledWords.clear();
         this.selectedLanguage = selectedLanguage;
-        if (languageDictionary.get(selectedLanguage.getName()) == null){
-            if (Constants.SOUNDEX_DICTIONARIES.contains(selectedLanguage.getName())){
+        if (languageDictionary.get(selectedLanguage.getName()) == null) {
+            if (Constants.SOUNDEX_DICTIONARIES.contains(selectedLanguage.getName())) {
                 languageDictionary.put(selectedLanguage.getName(), importSoundexDicctionary(dictionaryPath.get(selectedLanguage.getName())));
             } else {
                 languageDictionary.put(selectedLanguage.getName(), importDicctionary(dictionaryPath.get(selectedLanguage.getName())));
@@ -215,7 +216,7 @@ public class Controller {
         dictionary = languageDictionary.get(selectedLanguage.getName());
         if (Constants.SOUNDEX_DICTIONARIES.contains(selectedLanguage.getName())) {
             isSoundexDictionary = true;
-            if (!dictPopulated){
+            if (!dictPopulated) {
                 try {
                     populateDict(Constants.PATH_DICC_EN);
                 } catch (IOException e) {
@@ -230,9 +231,9 @@ public class Controller {
 
     private static ArrayList<Word> getReplaceWords(String input) {
         Iterator it = mispelledWords.iterator();
-        while (it.hasNext()){
+        while (it.hasNext()) {
             Word mispelledWord = (Word) it.next();
-            if (mispelledWord.getEntry().equals(input)){
+            if (mispelledWord.getEntry().equals(input)) {
                 return mispelledWord.getReplaceWords(1);
             }
         }
@@ -249,26 +250,26 @@ public class Controller {
         this.window = window;
     }
 
-    public void addMispelledWord(Word word){
+    public void addMispelledWord(Word word) {
         word.setMispelled(true);
         boolean duplicate = false;
         ArrayList<Word> auxMispelledWord = (ArrayList<Word>) mispelledWords.clone();
-        if (auxMispelledWord.size() > 0){
-            for (Word mispelledWord : auxMispelledWord){
-                if (word.getEntry().equals(mispelledWord.getEntry())){
-                    if (word.isSameWord(mispelledWord)){
+        if (auxMispelledWord.size() > 0) {
+            for (Word mispelledWord : auxMispelledWord) {
+                if (word.getEntry().equals(mispelledWord.getEntry())) {
+                    if (word.isSameWord(mispelledWord)) {
                         duplicate = true;
                     }
                 }
             }
-            if (!duplicate){
+            if (!duplicate) {
                 mispelledWords.add(word);
             }
         } else {
             mispelledWords.add(word);
         }
 
-        if(mispelledWordsCursorEnd.get(word.getPos()) != null){
+        if (mispelledWordsCursorEnd.get(word.getPos()) != null) {
             mispelledWordsCursorEnd.remove(word.getPos());
             mispelledWordsCursorEnd.put(word.getPos(), word);
         } else {
@@ -277,27 +278,34 @@ public class Controller {
         System.out.println(mispelledWords.toString());
     }
 
-    public boolean isSoundexDictionary(){
+    public boolean isSoundexDictionary() {
         return isSoundexDictionary;
     }
 
     public void deleteMispelledWord(int idx) {
         int wordLength = mispelledWordsCursorEnd.get(idx).getEntry().length();
         notepad.removeHighlightForWord(idx - wordLength, wordLength);
+        Word mispelledWord = mispelledWordsCursorEnd.get(idx);
+        for (Word word : mispelledWords) {
+            if (word.getEntry().equals(mispelledWord.getEntry())) {
+                if (word.isSameWord(mispelledWord)) {
+                    window.removeFromModel(word);
+                }
+            }
+        }
         mispelledWords.remove(mispelledWordsCursorEnd.get(idx));
         mispelledWordsCursorEnd.remove(idx);
-        window.removeFromModel(idx);
     }
 
     public HashMap<Integer, Word> getMispelledWordsCursorEnd() {
         return mispelledWordsCursorEnd;
     }
 
-    public Object[] isMispelledWord(Word word){
+    public Object[] isMispelledWord(Word word) {
         Iterator it = mispelledWords.iterator();
-        while(it.hasNext()){
+        while (it.hasNext()) {
             Word mispelledWord = (Word) it.next();
-            if (mispelledWord.getEntry().equals(word.getEntry())){
+            if (mispelledWord.getEntry().equals(word.getEntry())) {
                 return new Object[]{true, mispelledWord};
             }
         }
@@ -308,11 +316,11 @@ public class Controller {
         deleteMispelledWord(idx);
         HashMap<Integer, Word> mispelledWordsCursorEndAux = new HashMap<>(mispelledWordsCursorEnd);
         Set<Integer> cursorEnds = mispelledWordsCursorEnd.keySet();
-        if (lengthDifference != 0){
-            for (int cursorEnd: cursorEnds){
+        if (lengthDifference != 0) {
+            for (int cursorEnd : cursorEnds) {
                 mispelledWordsCursorEndAux.put(cursorEnd - lengthDifference, mispelledWordsCursorEndAux.get(cursorEnd));
             }
-            for (int cursorEnd: cursorEnds){
+            for (int cursorEnd : cursorEnds) {
                 mispelledWordsCursorEndAux.remove(cursorEnd);
             }
             mispelledWordsCursorEnd = mispelledWordsCursorEndAux;
@@ -320,9 +328,11 @@ public class Controller {
     }
 
 
-    public void addToModel(Word w){window.addToModel(w);}
+    public void addToModel(Word w) {
+        window.addToModel(w);
+    }
 
-    public Word getWord(int x){
+    public Word getWord(int x) {
         return mispelledWords.get(x);
     }
 }

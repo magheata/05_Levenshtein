@@ -159,8 +159,7 @@ public class SuggestionDropDownDecorator <C extends JComponent> {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                selectFromList(e);
-
+                //selectFromList(e);
             }
         });
     }

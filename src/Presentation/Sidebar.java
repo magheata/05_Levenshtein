@@ -11,8 +11,6 @@ import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.util.ArrayList;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 public class Sidebar extends JPanel {
 
@@ -45,12 +43,12 @@ public class Sidebar extends JPanel {
 
         Object popup = languageSelector.getUI().getAccessibleChild(languageSelector, 0);
         if (popup instanceof ComboPopup) {
-            JList jlist = ((ComboPopup)popup).getList();
+            JList jlist = ((ComboPopup) popup).getList();
             jlist.setFixedCellHeight(50);
         }
 
         languageSelector.addItemListener(e -> {
-            if(e.getStateChange() == ItemEvent.SELECTED) {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
                 Language selectedLanguage = (Language) languageSelector.getSelectedItem();
                 controller.setSelectedLanguage(selectedLanguage);
                 System.out.print(selectedLanguage.getName());
@@ -62,15 +60,13 @@ public class Sidebar extends JPanel {
         //Creación de la lista de ficheros
         listModel = new DefaultListModel();
         lista = new JList(listModel);
-        erroresArrayList = new ArrayList<Word>();
+        erroresArrayList = new ArrayList<>();
         lista.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        lista.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent le) {
-                if(!le.getValueIsAdjusting()) {
-                    idx = lista.getSelectedIndex();
-                        System.out.println(controller.getWord(idx).getEntry());
+        lista.addListSelectionListener(le -> {
+            if (!le.getValueIsAdjusting()) {
+                idx = lista.getSelectedIndex();
+                System.out.println(controller.getWord(idx).getEntry());
 
-                }
             }
         });
 
@@ -84,16 +80,15 @@ public class Sidebar extends JPanel {
 
     //Añade un elemento a la barra lateral
     public void addToModel(Word w) {
-            System.out.println(w.toString());
-            listModel.addElement(w);
-            erroresArrayList.add(w);
-            System.out.println(w.getEntry());
-            this.repaint();
+        listModel.addElement(w);
+        erroresArrayList.add(w);
+        System.out.println(w.getEntry());
+        this.repaint();
     }
 
     //Quita un elemento de la lista de la barra lateral
-    public void removeFromModel(int x){
-        listModel.remove(x);
+    public void removeFromModel(Word word) {
+        listModel.remove(listModel.indexOf(word));
         this.repaint();
     }
 }

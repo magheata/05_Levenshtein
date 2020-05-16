@@ -16,7 +16,6 @@ import java.awt.event.MouseListener;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import Presentation.Sidebar;
 
 public class Notepad extends JTextPane {
 
@@ -170,7 +169,8 @@ public class Notepad extends JTextPane {
                 controller.deleteMispelledWord((int) keys[idx]);
                 removeHighlightForWord((int) keys[idx] - 1, word.getEntry().length());
             }
-        } else {
+        }
+        else {
             if ((0 < startCursor) && (startCursor <= text.length())) {
                 int auxIdx = startCursor - 1;
                 char charAtCursor = text.charAt(auxIdx);
