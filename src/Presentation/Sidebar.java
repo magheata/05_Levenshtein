@@ -24,6 +24,7 @@ public class Sidebar extends JPanel {
     private JList<ArrayList> lista;
     private Word errorSeleccionado;
     int idx;
+    private JMenuBar menuIncorrectas;
 
     public Sidebar(Controller controller) {
         this.controller = controller;
@@ -83,6 +84,7 @@ public class Sidebar extends JPanel {
 
     }
 
+    //Añade un elemento a la barra lateral
     public void addToModel(Word w) {
             System.out.println(w.toString());
             listModel.addElement(w);
@@ -91,8 +93,10 @@ public class Sidebar extends JPanel {
             this.repaint();
     }
 
-    public void removeOfModel(int x){
+    //Quita un elemento de la lista de la barra lateral
+    public void removeFromModel(int x){
         listModel.remove(x);
+        this.repaint();
     }
 
     }

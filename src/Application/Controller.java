@@ -265,6 +265,7 @@ public class Controller {
     public void deleteMispelledWord(int idx) {
         mispelledWords.remove(mispelledWordsCursorEnd.get(idx));
         mispelledWordsCursorEnd.remove(idx);
+        window.removeFromModel(idx);
     }
 
     public HashMap<Integer, Word> getMispelledWordsCursorEnd() {
