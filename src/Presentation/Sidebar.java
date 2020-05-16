@@ -86,7 +86,7 @@ public class Sidebar extends JPanel {
         lista.addListSelectionListener(le -> {
             if (!le.getValueIsAdjusting()) {
                 idx = lista.getSelectedIndex();
-                System.out.println(controller.getWord(idx).getEntry());
+                //System.out.println(controller.getWord(idx));
 
             }
         });
