@@ -13,6 +13,7 @@ import Utils.MultiMap;
 import Utils.Utils;
 
 import javax.swing.*;
+import javax.swing.text.Highlighter;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -45,6 +46,17 @@ public class Controller {
     private static boolean isSoundexDictionary;
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    public Highlighter.Highlight[] getHighlights() {
+        return highlights;
+    }
+
+    public void setHighlights(Highlighter.Highlight[] highlights) {
+        this.highlights = highlights;
+    }
+
+    private Highlighter.Highlight [] highlights;
+
 
     public Controller() {
         initApplication();
@@ -148,11 +160,11 @@ public class Controller {
             if ((!wordToFind.equals("")) && (!wordToFind.equals(" "))){
                 word = new Word(wordToFind, dictionary.getType().equals(Constants.PATH_DICC_EN) ? true : false);
                 if (!findWordInDicctionary(word)) {
-                    notepad.underlineMispelledWord(word);
                     int row = notepad.getWordRow(word);
                     word.setLine(row);
-                    word.setPos(notepad.getText().indexOf(word.getEntry()));
-                    mispelledWords.add(word);
+                    word.setPos(notepad.getText().indexOf(word.getEntry()) + wordToFind.length());
+                    addMispelledWord(word);
+                    notepad.underlineMispelledWord(word);
                 }
             }
         }
@@ -231,7 +243,7 @@ public class Controller {
     public void setNotepad(Notepad notepad) {
         this.notepad = notepad;
         SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordSuggestionClient(Controller::getWords));
-        SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordReplace(Controller::getReplaceWords), this);
+        SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordReplace(Controller::getReplaceWords, this), this);
     }
 
     public void setWindow(Window window) {
@@ -271,6 +283,8 @@ public class Controller {
     }
 
     public void deleteMispelledWord(int idx) {
+        int wordLength = mispelledWordsCursorEnd.get(idx).getEntry().length();
+        notepad.removeHighlightForWord(idx - wordLength, wordLength);
         mispelledWords.remove(mispelledWordsCursorEnd.get(idx));
         mispelledWordsCursorEnd.remove(idx);
     }
@@ -288,5 +302,20 @@ public class Controller {
             }
         }
         return new Object[]{false, null};
+    }
+
+    public void removeMispelledWordFromText(int idx, int lengthDifference) {
+        deleteMispelledWord(idx);
+        HashMap<Integer, Word> mispelledWordsCursorEndAux = new HashMap<>(mispelledWordsCursorEnd);
+        Set<Integer> cursorEnds = mispelledWordsCursorEnd.keySet();
+        if (lengthDifference != 0){
+            for (int cursorEnd: cursorEnds){
+                mispelledWordsCursorEndAux.put(cursorEnd - lengthDifference, mispelledWordsCursorEndAux.get(cursorEnd));
+            }
+            for (int cursorEnd: cursorEnds){
+                mispelledWordsCursorEndAux.remove(cursorEnd);
+            }
+            mispelledWordsCursorEnd = mispelledWordsCursorEndAux;
+        }
     }
 }

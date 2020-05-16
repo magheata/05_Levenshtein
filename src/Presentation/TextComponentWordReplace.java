@@ -1,6 +1,7 @@
 /* Created by andreea on 15/05/2020 */
 package Presentation;
 
+import Application.Controller;
 import Domain.Interfaces.ISuggestionClient;
 import Domain.Word;
 import Utils.Constants;
@@ -15,9 +16,11 @@ import java.util.function.Function;
 
 public class TextComponentWordReplace implements ISuggestionClient<JTextComponent> {
     private Function<String, ArrayList<Word>> suggestionProvider;
+    private Controller controller;
 
-    public TextComponentWordReplace(Function<String, ArrayList<Word>> suggestionProvider) {
+    public TextComponentWordReplace(Function<String, ArrayList<Word>> suggestionProvider, Controller controller) {
         this.suggestionProvider = suggestionProvider;
+        this.controller = controller;
     }
 
     @Override
@@ -46,6 +49,8 @@ public class TextComponentWordReplace implements ISuggestionClient<JTextComponen
                 }
                 tp.getDocument().remove(previousWordIndex, auxIdx - previousWordIndex);
                 tp.getDocument().insertString(previousWordIndex, selectedValue, null);
+                int lengthDiff = (auxIdx - previousWordIndex) - selectedValue.length();
+                controller.removeMispelledWordFromText(auxIdx, lengthDiff);
             }
         } catch (BadLocationException e) {
             System.err.println(e);
@@ -54,8 +59,8 @@ public class TextComponentWordReplace implements ISuggestionClient<JTextComponen
 
     @Override
     public ArrayList<Word> get(JTextComponent tp) {
+        int cp = tp.getCaretPosition();
         try {
-            int cp = tp.getCaretPosition();
             if (cp != 0) {
                 String text = tp.getText(cp - 1, 1);
                 if (text.trim().isEmpty()) {

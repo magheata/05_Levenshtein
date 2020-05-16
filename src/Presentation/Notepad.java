@@ -13,7 +13,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.geom.Rectangle2D;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,6 +30,8 @@ public class Notepad extends JTextPane {
     private Highlighter highlighter;
     private JList replaceWordsList;
     private JPopupMenu popupMenu;
+
+    private ArrayList<Highlighter.Highlight> highlights = new ArrayList<>();
 
     private int selectionStart;
 ;
@@ -143,19 +144,6 @@ public class Notepad extends JTextPane {
                             Word replaceWord = (Word) it.next();
                             replaceStringWords.add(replaceWord.getEntry());
                         }
-                        /*
-                        replaceWordsList = new JList(replaceStringWords.toArray());
-                        JScrollPane scrollPane = new JScrollPane(replaceWordsList);
-                        Point p = getPopupLocation(start);
-                        if (p == null) {
-                            return;
-                        }
-                        replaceWordsList.setSelectedIndex(0);
-                        popupMenu = new JPopupMenu();
-                        popupMenu.add(replaceWordsList);
-                        popupMenu.setVisible(true);
-                        popupMenu.pack();
-                        popupMenu.show(this, (int) p.getX(), (int) p.getY());*/
                     }
                     if (eof) {
                     } else {
@@ -207,10 +195,15 @@ public class Notepad extends JTextPane {
                         writtenWord = new Word(word.toString(), controller.isSoundexDictionary());
                         if (!controller.findWordInDicctionary(writtenWord)) {
                             try {
-                                writtenWord.setPos(startCursor);
+                                writtenWord.setPos(startCursor - 1);
                                 writtenWord.setLine(getCurrentRow(startCursor));
                                 controller.addMispelledWord(writtenWord);
-                                highlighter.addHighlight(auxIdx == 0 ? auxIdx : auxIdx + 1, (auxIdx == 0 ? auxIdx : auxIdx + 1) + word.length(), painter);
+                                auxIdx++;
+                                if (!containsHighlight(auxIdx, auxIdx + word.length())){
+                                    highlighter.addHighlight(auxIdx, auxIdx + word.length(), painter);
+                                    highlights = new ArrayList<>(Arrays.asList(highlighter.getHighlights()));
+                                }
+                                printHighlights();
                             } catch (BadLocationException badLocationException) {
                                 badLocationException.printStackTrace();
                             }
@@ -243,12 +236,21 @@ public class Notepad extends JTextPane {
         try {
             String text = this.getText();
             int indexWord = text.toLowerCase().indexOf(word.getEntry().toLowerCase());
-            highlighter.addHighlight(indexWord, indexWord + word.getEntry().length(), painter);
+            if (!containsHighlight(indexWord, indexWord + word.getEntry().length())){
+                highlighter.addHighlight(indexWord, indexWord + word.getEntry().length(), painter);
+                highlights = new ArrayList<>(Arrays.asList(highlighter.getHighlights()));
+            }
+            printHighlights();
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
     }
 
+    private void printHighlights(){
+        for (Highlighter.Highlight h: highlighter.getHighlights()){
+            System.out.println("Start:" + h.getStartOffset() + " End: " + h.getEndOffset());
+        }
+    }
     public void removeHighlights(){
         highlighter.removeAllHighlights();
     }
@@ -277,23 +279,25 @@ public class Notepad extends JTextPane {
         return row;
     }
 
-    private void removeHighlightForWord(int cursorPos, int length){
-        Highlighter.Highlight[] highlights = highlighter.getHighlights();
+    public void removeHighlightForWord(int cursorPos, int length){
         for (Highlighter.Highlight highlight : highlights){
-            if ((highlight.getStartOffset() == (cursorPos - length)) && (highlight.getEndOffset() == cursorPos)){
+            if ((highlight.getStartOffset() >= (cursorPos + length)) && (highlight.getEndOffset() >= (cursorPos + length)) && (highlight.getStartOffset() == highlight.getEndOffset())){
                 highlighter.removeHighlight(highlight);
+                highlights = new ArrayList<>(Arrays.asList(highlighter.getHighlights()));
+                break;
             }
         }
-        Highlighter.Highlight highlight = highlights[0];
     }
 
-    public Point getPopupLocation(int caretPosition) {
-        try {
-            Rectangle2D rectangle2D = this.modelToView(caretPosition);
-            return new Point((int) rectangle2D.getX(), (int) (rectangle2D.getY() + rectangle2D.getHeight()));
-        } catch (BadLocationException e) {
-            System.err.println(e);
+    public boolean containsHighlight(int start, int end){
+        if (highlights.size() > 0){
+            for (Highlighter.Highlight h : highlights){
+                if ((h.getStartOffset() == start) && (h.getEndOffset() == end)){
+                    return true;
+                }
+            }
+            return false;
         }
-        return null;
+        return false;
     }
 }

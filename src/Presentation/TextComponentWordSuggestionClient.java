@@ -53,8 +53,8 @@ public class TextComponentWordSuggestionClient implements ISuggestionClient<JTex
 
     @Override
     public ArrayList<Word> get(JTextComponent tp) {
+        int cp = tp.getCaretPosition();
         try {
-            int cp = tp.getCaretPosition();
             if (cp != 0) {
                 String text = tp.getText(cp - 1, 1);
                 if (text.trim().isEmpty()) {

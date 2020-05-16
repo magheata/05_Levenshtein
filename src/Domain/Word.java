@@ -80,7 +80,7 @@ public class Word {
     @Override
     public String toString() {
         return "Word{" +
-                "distance=" + distance +
+                "pos=" + pos +
                 ", entry='" + entry + '\'' +
                 ", soundexWord=" + soundexWord +
                 "}\n";
