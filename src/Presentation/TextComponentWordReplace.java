@@ -3,6 +3,7 @@ package Presentation;
 
 import Domain.Interfaces.ISuggestionClient;
 import Domain.Word;
+import Utils.Constants;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
@@ -39,8 +40,11 @@ public class TextComponentWordReplace implements ISuggestionClient<JTextComponen
                 tp.getDocument().insertString(cp, selectedValue, null);
             } else {
                 int previousWordIndex = Utilities.getPreviousWord(tp, cp);
-                int nextWordIndex = Utilities.getNextWord(tp, cp);
-                tp.getDocument().remove(previousWordIndex, (nextWordIndex - previousWordIndex) - 1);
+                int auxIdx = previousWordIndex;
+                while (!Constants.SYMBOLS.contains(tp.getText().charAt(auxIdx))){
+                    auxIdx++;
+                }
+                tp.getDocument().remove(previousWordIndex, auxIdx - previousWordIndex);
                 tp.getDocument().insertString(previousWordIndex, selectedValue, null);
             }
         } catch (BadLocationException e) {
@@ -59,8 +63,12 @@ public class TextComponentWordReplace implements ISuggestionClient<JTextComponen
                 }
             }
             int previousWordIndex = Utilities.getPreviousWord(tp, cp);
-            int nextWordIndex = Utilities.getNextWord(tp, cp);
-            String text = tp.getText(previousWordIndex, nextWordIndex - previousWordIndex);
+            int auxIdx = previousWordIndex;
+            while (!Constants.SYMBOLS.contains(tp.getText().charAt(auxIdx))){
+                auxIdx++;
+            }
+            String text = tp.getText(previousWordIndex, auxIdx - previousWordIndex);
+
             return suggestionProvider.apply(text.trim());
         } catch (BadLocationException e) {
             System.err.println(e);

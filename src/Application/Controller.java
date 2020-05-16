@@ -50,6 +50,7 @@ public class Controller {
         initApplication();
         reader = new Reader();
         spellChecker = new SpellChecker();
+        selectedLanguage = availableLanguages.get("español");
     }
 
     private static ArrayList<Word> getWords(String input) {
@@ -57,10 +58,18 @@ public class Controller {
         if (input.isEmpty()) {
             return null;
         }
-        return (ArrayList<Word>) dictionary.getEntries().stream()
+        ArrayList<Word> words = (ArrayList<Word>)
+                dictionary.getEntries().stream()
                 .filter(s -> s.getEntry().startsWith(input))
                 .limit(20)
                 .collect(Collectors.toList());
+
+        for (Word word: words){
+            if (word.getEntry().equals(input)){
+                return new ArrayList<>(words.subList(1, words.size()));
+            }
+        }
+        return words;
     }
 
     private void initApplication() {
@@ -205,14 +214,10 @@ public class Controller {
         } else {
             isSoundexDictionary = false;
         }
-        SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordSuggestionClient(Controller::getWords));
-        SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordReplace(Controller::getReplaceWords), this);
-
         executor.submit(() -> checkText());
     }
 
     private static ArrayList<Word> getReplaceWords(String input) {
-        Word word = new Word(input, isSoundexDictionary);
         Iterator it = mispelledWords.iterator();
         while (it.hasNext()){
             Word mispelledWord = (Word) it.next();
@@ -225,6 +230,8 @@ public class Controller {
 
     public void setNotepad(Notepad notepad) {
         this.notepad = notepad;
+        SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordSuggestionClient(Controller::getWords));
+        SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordReplace(Controller::getReplaceWords), this);
     }
 
     public void setWindow(Window window) {
