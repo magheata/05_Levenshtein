@@ -31,6 +31,12 @@ public class Controller {
     private Language selectedLanguage;
     private Window window;
     private Notepad notepad;
+
+    public void setSidebar(Sidebar sidebar) {
+        this.sidebar = sidebar;
+    }
+
+    private Sidebar sidebar;
     private static Dictionary dictionary;
     private MultiMap<String, String> dict = new MultiMap<String, String>();
     private HashMap<String, Dictionary> languageDictionary = new HashMap<>();
@@ -319,10 +325,11 @@ public class Controller {
         Set<Integer> cursorEnds = mispelledWordsCursorEnd.keySet();
         if (lengthDifference != 0) {
             for (int cursorEnd : cursorEnds) {
-                mispelledWordsCursorEndAux.put(cursorEnd - lengthDifference, mispelledWordsCursorEndAux.get(cursorEnd));
-            }
-            for (int cursorEnd : cursorEnds) {
-                mispelledWordsCursorEndAux.remove(cursorEnd);
+                if (cursorEnd > idx){
+                    Word word = mispelledWordsCursorEndAux.get(cursorEnd);
+                    mispelledWordsCursorEndAux.remove(cursorEnd);
+                    mispelledWordsCursorEndAux.put(cursorEnd - lengthDifference, word);
+                }
             }
             mispelledWordsCursorEnd = mispelledWordsCursorEndAux;
         }
@@ -334,5 +341,12 @@ public class Controller {
 
     public void getWord(int x) {
         //return mispelledWords.get(x);
+    }
+
+    public void resizePanels(int width, int height) {
+        SwingUtilities.invokeLater(() -> {
+            notepad.resizeNotepad(width, height);
+            sidebar.resizeSideBar(width, height);
+        });
     }
 }

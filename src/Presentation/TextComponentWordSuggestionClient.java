@@ -26,7 +26,6 @@ public class TextComponentWordSuggestionClient implements ISuggestionClient<JTex
             Rectangle2D rectangle2D = invoker.modelToView(caretPosition);
             return new Point((int) rectangle2D.getX(), (int) (rectangle2D.getY() + rectangle2D.getHeight()));
         } catch (BadLocationException e) {
-            System.err.println(e);
         }
         return null;
     }

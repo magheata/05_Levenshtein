@@ -30,7 +30,6 @@ public class TextComponentWordReplace implements ISuggestionClient<JTextComponen
             Rectangle2D rectangle2D = invoker.modelToView(caretPosition);
             return new Point((int) rectangle2D.getX(), (int) (rectangle2D.getY() + rectangle2D.getHeight()));
         } catch (BadLocationException e) {
-            System.err.println(e);
         }
         return null;
     }
@@ -53,7 +52,6 @@ public class TextComponentWordReplace implements ISuggestionClient<JTextComponen
                 controller.removeMispelledWordFromText(auxIdx, lengthDiff);
             }
         } catch (BadLocationException e) {
-            System.err.println(e);
         }
     }
 
@@ -76,7 +74,6 @@ public class TextComponentWordReplace implements ISuggestionClient<JTextComponen
 
             return suggestionProvider.apply(text.trim());
         } catch (BadLocationException e) {
-            System.err.println(e);
         }
         return null;
     }

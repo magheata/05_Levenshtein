@@ -8,10 +8,10 @@ public class Constants {
 
     public final static int WIDTH_WINDOW = 700;
     public final static int HEIGHT_WINDOW = 750;
-    public final static int WIDTH_SIDEBAR = 200;
-    public final static int HEIGHT_SIDEBAR = 750;
-    public final static int WIDTH_NOTEPAD = 475;
-    public final static int HEIGHT_NOTEPAD = 750;
+    public final static int WIDTH_SIDEBAR = (WIDTH_WINDOW) * 30 / 100;
+    public final static int HEIGHT_SIDEBAR = HEIGHT_WINDOW;
+    public final static int WIDTH_NOTEPAD = (WIDTH_WINDOW) * 70 / 100;
+    public final static int HEIGHT_NOTEPAD = HEIGHT_WINDOW;
 
     public final static Dimension DIM_WINDOW = new Dimension(WIDTH_WINDOW, HEIGHT_WINDOW);
     public final static Dimension DIM_SIDEBAR = new Dimension(WIDTH_SIDEBAR, HEIGHT_SIDEBAR);

@@ -33,6 +33,7 @@ public class Sidebar extends JPanel {
 
     public Sidebar(Controller controller) {
         this.controller = controller;
+        controller.setSidebar(this);
         initComponents();
     }
 
@@ -110,6 +111,11 @@ public class Sidebar extends JPanel {
     public void removeFromModel(Word word) {
         listModel.remove(listModel.indexOf(word.getEntry()));
         this.repaint();
+    }
+
+    public void resizeSideBar(int width, int height) {
+        this.setSize(new Dimension((width * 30 / 100), height));
+        this.setPreferredSize(new Dimension((width * 30 / 100), height));
     }
 }
 

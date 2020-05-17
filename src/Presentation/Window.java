@@ -8,6 +8,8 @@ import Utils.Constants;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.File;
 
 public class Window extends JFrame {
@@ -47,6 +49,14 @@ public class Window extends JFrame {
         this.add(notepadScrollPanel, BorderLayout.WEST);
         this.add(new JSeparator(SwingConstants.VERTICAL));
         this.add(sideBarPanel, BorderLayout.EAST);
+
+        this.getContentPane().addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                super.componentResized(e);
+                controller.resizePanels(e.getComponent().getWidth(), e.getComponent().getHeight());
+            }
+        });
 
         this.setJMenuBar(menuPanel.getMenuBar());
         this.setVisible(true);

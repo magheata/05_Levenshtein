@@ -204,9 +204,8 @@ public class Notepad extends JTextPane {
                                     highlighter.addHighlight(auxIdx, auxIdx + word.length(), painter);
                                     highlights = new ArrayList<>(Arrays.asList(highlighter.getHighlights()));
                                 }
-                                highlighter.addHighlight(auxIdx == 0 ? auxIdx : auxIdx + 1, (auxIdx == 0 ? auxIdx : auxIdx + 1) + word.length(), painter);
                             } catch (BadLocationException badLocationException) {
-                                badLocationException.printStackTrace();
+
                             }
                             System.out.println(word.toString() + " is mispelled. Maybe you meant: ");
                             for (Word entry : writtenWord.getReplaceWords(1)) {
@@ -299,5 +298,10 @@ public class Notepad extends JTextPane {
             return false;
         }
         return false;
+    }
+
+    public void resizeNotepad(int width, int height) {
+        this.setSize(new Dimension((width * 65 / 100), height));
+        this.setPreferredSize(new Dimension((width * 65 / 100), height));
     }
 }
