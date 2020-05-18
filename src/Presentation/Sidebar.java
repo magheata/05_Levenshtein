@@ -10,6 +10,7 @@ import javax.swing.*;
 import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
 import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
 import eu.hansolo.custom.*;
@@ -26,7 +27,6 @@ public class Sidebar extends JPanel {
     private JList<ArrayList> lista;
     private Word errorSeleccionado;
     private SteelCheckBox checkBox;
-    private SteelCheckBoxUI checkBoxUI;
 
     private int idx;
     private JMenuBar menuIncorrectas;
@@ -49,6 +49,12 @@ public class Sidebar extends JPanel {
         checkBox.setText("Enable suggestions");
         checkBox.setColored(true);
         checkBox.setSelectedColor(ColorDef.RAITH);
+        checkBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                controller.toggleSuggestions();
+            }
+        });
         this.setVisible(true);
         this.setLayout(new BorderLayout());
         this.setSize(Constants.DIM_SIDEBAR);

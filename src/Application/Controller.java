@@ -2,6 +2,7 @@
 package Application;
 
 import Domain.Dictionary;
+import Domain.Interfaces.IController;
 import Domain.Language;
 import Domain.SoundexDictionary;
 import Domain.Word;
@@ -14,16 +15,13 @@ import Utils.Utils;
 
 import javax.swing.*;
 import javax.swing.text.Highlighter;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public class Controller {
+public class Controller implements IController {
 
     private Reader reader;
     private Utils utils;
@@ -31,11 +29,6 @@ public class Controller {
     private Language selectedLanguage;
     private Window window;
     private Notepad notepad;
-
-    public void setSidebar(Sidebar sidebar) {
-        this.sidebar = sidebar;
-    }
-
     private Sidebar sidebar;
     private static Dictionary dictionary;
     private MultiMap<String, String> dict = new MultiMap<String, String>();
@@ -44,25 +37,12 @@ public class Controller {
     private HashMap<String, Language> availableLanguages = new HashMap<>();
     private HashMap<Integer, Word> mispelledWordsCursorEnd = new HashMap<>();
     private static ArrayList<Word> mispelledWords = new ArrayList<>();
-
     private boolean dictPopulated = false;
-
     private static boolean isSoundexDictionary;
-
     private ExecutorService executor = Executors.newSingleThreadExecutor();
-
-    public Highlighter.Highlight[] getHighlights() {
-        return highlights;
-    }
-
-    public void setHighlights(Highlighter.Highlight[] highlights) {
-        this.highlights = highlights;
-    }
-
     private Highlighter.Highlight[] highlights;
-
     private static int distance = 1;
-
+    private static boolean suggestionsEnabled = false;
 
     public Controller() {
         initApplication();
@@ -71,50 +51,18 @@ public class Controller {
         selectedLanguage = availableLanguages.get("español");
     }
 
-    private static ArrayList<Word> getWords(String input) {
-        //the suggestion provider can control text search related stuff, e.g case insensitive match, the search  limit etc.
-        if (input.isEmpty()) {
-            return null;
-        }
-        ArrayList<Word> words = (ArrayList<Word>)
-                dictionary.getEntries().stream()
-                        .filter(s -> s.getEntry().startsWith(input))
-                        .limit(20)
-                        .collect(Collectors.toList());
-
-        for (Word word : words) {
-            if (word.getEntry().equals(input)) {
-                return new ArrayList<>(words.subList(1, words.size()));
-            }
-        }
-        return words;
-    }
-
-    private void initApplication() {
-        utils = new Utils();
-        loadAvailableLanguages();
-    }
-
-    private void loadAvailableLanguages() {
-        ArrayList<File> dictionaries = utils.listFilesForFolder(new File("dicc/"));
-        for (File dictionary : dictionaries) {
-            String language = dictionary.getName().split("\\.")[0];
-            Language newLanguage = new Language(language, new ImageIcon("src/Presentation/Images/" + language + ".png"));
-            languageDictionary.put(newLanguage.getName(), null);
-            dictionaryPath.put(newLanguage.getName(), dictionary.getAbsolutePath());
-            availableLanguages.put(language, newLanguage);
-        }
-    }
-
+    @Override
     public Dictionary importDicctionary(String path) {
         dictionary = new Dictionary(path, reader.readDicc(path));
         return dictionary;
     }
 
+    @Override
     public Dictionary importSoundexDicctionary(String path) {
         return new SoundexDictionary(path, reader.readDicc(path));
     }
 
+    @Override
     public boolean findWordInDicctionary(Word wordToFind) {
         if (!wordToFind.getEntry().equals("") && !wordToFind.getEntry().equals(" ")) {
             if (wordToFind.isSoundexWord()) {
@@ -155,10 +103,7 @@ public class Controller {
         return false;
     }
 
-    public StringBuilder getFileContent(String path) {
-        return reader.getFileContent(path);
-    }
-
+    @Override
     public void checkText() {
         String[] wordsInText = notepad.getText().split(Constants.SYMBOLS_STRING);
         Word word;
@@ -176,16 +121,22 @@ public class Controller {
         }
     }
 
-    public void populateDict(String filename) throws IOException {
+    @Override
+    public void populateDict(String filename){
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String soundex = Soundex.soundex(line);
                 dict.put(soundex, line);
             }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
+    @Override
     public void openFileChooser(boolean isEditable) {
         switch (window.getFileChooser().showOpenDialog(window)) {
             case JFileChooser.APPROVE_OPTION:
@@ -196,19 +147,17 @@ public class Controller {
         }
     }
 
-    public void enableNotepad(boolean isEditable) {
-        notepad.setNotepadEditable(isEditable);
-    }
-
+    @Override
     public ArrayList<Language> getLanguages() {
         ArrayList<Language> langs = new ArrayList<>();
-        ;
+
         for (String language : dictionaryPath.keySet()) {
             langs.add(availableLanguages.get(language));
         }
         return langs;
     }
 
+    @Override
     public void setSelectedLanguage(Language selectedLanguage) {
         window.resetModel();
         notepad.removeHighlights();
@@ -225,16 +174,17 @@ public class Controller {
         if (Constants.SOUNDEX_DICTIONARIES.contains(selectedLanguage.getName())) {
             isSoundexDictionary = true;
             if (!dictPopulated) {
-                try {
-                    populateDict(Constants.PATH_DICC_EN);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                populateDict(Constants.PATH_DICC_EN);
             }
         } else {
             isSoundexDictionary = false;
         }
         executor.submit(() -> checkText());
+    }
+
+    @Override
+    public void toggleSuggestions() {
+        suggestionsEnabled = !suggestionsEnabled;
     }
 
     private static ArrayList<Word> getReplaceWords(String input) {
@@ -248,16 +198,7 @@ public class Controller {
         return null;
     }
 
-    public void setNotepad(Notepad notepad) {
-        this.notepad = notepad;
-        SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordSuggestionClient(Controller::getWords));
-        SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordReplace(Controller::getReplaceWords, this), this);
-    }
-
-    public void setWindow(Window window) {
-        this.window = window;
-    }
-
+    @Override
     public void addMispelledWord(Word word) {
         word.setMispelled(true);
         boolean duplicate = false;
@@ -288,10 +229,7 @@ public class Controller {
         System.out.println(mispelledWords.toString());
     }
 
-    public boolean isSoundexDictionary() {
-        return isSoundexDictionary;
-    }
-
+    @Override
     public void deleteMispelledWord(int idx) {
         int wordLength = mispelledWordsCursorEnd.get(idx).getEntry().length();
         notepad.removeHighlightForWord(idx - wordLength, wordLength);
@@ -308,10 +246,7 @@ public class Controller {
         mispelledWordsCursorEnd.remove(idx);
     }
 
-    public HashMap<Integer, Word> getMispelledWordsCursorEnd() {
-        return mispelledWordsCursorEnd;
-    }
-
+    @Override
     public Object[] isMispelledWord(Word word) {
         Iterator it = mispelledWords.iterator();
         while (it.hasNext()) {
@@ -323,7 +258,8 @@ public class Controller {
         return new Object[]{false, null};
     }
 
-    public void removeMispelledWordFromText(int idx, int lengthDifference) {
+    @Override
+    public void replaceMispelledWordFromText(int idx, int lengthDifference) {
         deleteMispelledWord(idx);
         HashMap<Integer, Word> mispelledWordsCursorEndAux = new HashMap<>(mispelledWordsCursorEnd);
         Set<Integer> cursorEnds = mispelledWordsCursorEnd.keySet();
@@ -346,10 +282,7 @@ public class Controller {
         window.addToModel(w);
     }
 
-    public void getWord(int x) {
-        //return mispelledWords.get(x);
-    }
-
+    @Override
     public void resizePanels(int width, int height) {
         SwingUtilities.invokeLater(() -> {
             notepad.resizeNotepad(width, height);
@@ -363,5 +296,70 @@ public class Controller {
 
     public void resetDistance() {
         distance = 1;
+    }
+
+    private static ArrayList<Word> getWords(String input) {
+        if (suggestionsEnabled){
+            //the suggestion provider can control text search related stuff, e.g case insensitive match, the search  limit etc.
+            if (input.isEmpty()) {
+                return null;
+            }
+            ArrayList<Word> words = (ArrayList<Word>)
+                    dictionary.getEntries().stream()
+                            .filter(s -> s.getEntry().startsWith(input))
+                            .limit(20)
+                            .collect(Collectors.toList());
+
+            for (Word word : words) {
+                if (word.getEntry().equals(input)) {
+                    return new ArrayList<>(words.subList(1, words.size()));
+                }
+            }
+            return words;
+        }
+        return null;
+    }
+
+    private void initApplication() {
+        utils = new Utils();
+        loadAvailableLanguages();
+    }
+
+    private void loadAvailableLanguages() {
+        ArrayList<File> dictionaries = utils.listFilesForFolder(new File("dicc/"));
+        for (File dictionary : dictionaries) {
+            String language = dictionary.getName().split("\\.")[0];
+            Language newLanguage = new Language(language, new ImageIcon("src/Presentation/Images/" + language + ".png"));
+            languageDictionary.put(newLanguage.getName(), null);
+            dictionaryPath.put(newLanguage.getName(), dictionary.getAbsolutePath());
+            availableLanguages.put(language, newLanguage);
+        }
+    }
+
+    public void setSidebar(Sidebar sidebar) {
+        this.sidebar = sidebar;
+    }
+
+    public HashMap<Integer, Word> getMispelledWordsCursorEnd() {
+        return mispelledWordsCursorEnd;
+    }
+
+
+    public void setNotepad(Notepad notepad) {
+        this.notepad = notepad;
+        SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordSuggestionClient(Controller::getWords));
+        SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordReplace(Controller::getReplaceWords, this), this);
+    }
+
+    public void setWindow(Window window) {
+        this.window = window;
+    }
+
+    public boolean isSoundexDictionary() {
+        return isSoundexDictionary;
+    }
+
+    public void enableNotepad(boolean isEditable) {
+        notepad.setNotepadEditable(isEditable);
     }
 }
