@@ -4,6 +4,7 @@ package Presentation;
 import Application.Controller;
 import Domain.Interfaces.ISuggestionClient;
 import Domain.Word;
+import Utils.Constants;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -94,7 +95,6 @@ public class SuggestionDropDownDecorator <C extends JComponent> {
                     SwingUtilities.invokeLater(() -> {
                         ArrayList<Word> suggestions = client.get(invoker);
                         ArrayList<String> suggestionsList = new ArrayList<>();
-
                         if (suggestions != null && !suggestions.isEmpty()) {
                             if (!suggestionsList.contains(invoker)){
                                 Iterator it = suggestions.iterator();
@@ -149,9 +149,15 @@ public class SuggestionDropDownDecorator <C extends JComponent> {
         invoker.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
+                int distance = 1;
                 ArrayList<Word> replacements = client.get(invoker);
-                ArrayList<String> replacementsList = new ArrayList<>();
+                while (((replacements == null) || (replacements.isEmpty()))  && (distance != Constants.MAX_DISTANCE)){
+                    distance++;
+                    controller.increaseDistance();
+                    replacements = client.get(invoker);
+                }
                 if (replacements != null && !replacements.isEmpty()) {
+                    ArrayList<String> replacementsList = new ArrayList<>();
                     Iterator it = replacements.iterator();
                     while (it.hasNext()){
                         Word suggestion = (Word) it.next();
@@ -161,6 +167,7 @@ public class SuggestionDropDownDecorator <C extends JComponent> {
                 } else {
                     popupMenu.setVisible(false);
                 }
+                controller.resetDistance();
             }
         });
     }

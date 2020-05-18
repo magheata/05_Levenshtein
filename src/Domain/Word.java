@@ -46,6 +46,9 @@ public class Word {
     }
 
     public ArrayList<Word> getReplaceWords(int distance) {
+        if (!replaceWords.containsKey(distance)){
+            return null;
+        }
         return replaceWords.get(distance);
     }
 

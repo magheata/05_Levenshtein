@@ -48,7 +48,7 @@ public class TextComponentWordReplace implements ISuggestionClient<JTextComponen
                 }
                 tp.getDocument().remove(previousWordIndex, auxIdx - previousWordIndex);
                 tp.getDocument().insertString(previousWordIndex, selectedValue, null);
-                int lengthDiff = (auxIdx - previousWordIndex) - selectedValue.length();
+                int lengthDiff = selectedValue.length() - (auxIdx - previousWordIndex);
                 controller.removeMispelledWordFromText(auxIdx, lengthDiff);
             }
         } catch (BadLocationException e) {

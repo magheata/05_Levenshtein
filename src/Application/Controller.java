@@ -61,6 +61,8 @@ public class Controller {
 
     private Highlighter.Highlight[] highlights;
 
+    private static int distance = 1;
+
 
     public Controller() {
         initApplication();
@@ -123,11 +125,11 @@ public class Controller {
                         return true;
                     } else {
                         if (!wordToFind.replaceWordsInitialized()) {
-                            for (int i = 1; i <= 2; i++) {
+                            for (int i = 1; i <= Constants.MAX_DISTANCE; i++) {
                                 wordToFind.addDistance(i);
                             }
                         }
-                        if ((distance < 3)) {
+                        if ((distance <= Constants.MAX_DISTANCE)) {
                             wordToFind.addReplaceWord(new Word(distance, homophone, true));
                         }
                     }
@@ -139,11 +141,11 @@ public class Controller {
                         return true;
                     } else {
                         if (!wordToFind.replaceWordsInitialized()) {
-                            for (int i = 1; i <= 2; i++) {
+                            for (int i = 1; i <= Constants.MAX_DISTANCE; i++) {
                                 wordToFind.addDistance(i);
                             }
                         }
-                        if ((distance < 3)) {
+                        if ((distance <= Constants.MAX_DISTANCE)) {
                             wordToFind.addReplaceWord(new Word(distance, word.getEntry(), false));
                         }
                     }
@@ -208,6 +210,7 @@ public class Controller {
     }
 
     public void setSelectedLanguage(Language selectedLanguage) {
+        window.resetModel();
         notepad.removeHighlights();
         mispelledWords.clear();
         this.selectedLanguage = selectedLanguage;
@@ -239,7 +242,7 @@ public class Controller {
         while (it.hasNext()) {
             Word mispelledWord = (Word) it.next();
             if (mispelledWord.getEntry().equals(input)) {
-                return mispelledWord.getReplaceWords(1);
+                return mispelledWord.getReplaceWords(distance);
             }
         }
         return null;
@@ -297,6 +300,7 @@ public class Controller {
             if (word.getEntry().equals(mispelledWord.getEntry())) {
                 if (word.isSameWord(mispelledWord)) {
                     window.removeFromModel(word);
+                    break;
                 }
             }
         }
@@ -323,12 +327,15 @@ public class Controller {
         deleteMispelledWord(idx);
         HashMap<Integer, Word> mispelledWordsCursorEndAux = new HashMap<>(mispelledWordsCursorEnd);
         Set<Integer> cursorEnds = mispelledWordsCursorEnd.keySet();
-        if (lengthDifference != 0) {
+        if (Math.abs(lengthDifference) != 0) {
+            int newCursorEnd;
             for (int cursorEnd : cursorEnds) {
                 if (cursorEnd > idx){
                     Word word = mispelledWordsCursorEndAux.get(cursorEnd);
+                    newCursorEnd = cursorEnd + lengthDifference;
+                    word.setPos(newCursorEnd);
+                    mispelledWordsCursorEndAux.put(newCursorEnd, word);
                     mispelledWordsCursorEndAux.remove(cursorEnd);
-                    mispelledWordsCursorEndAux.put(cursorEnd - lengthDifference, word);
                 }
             }
             mispelledWordsCursorEnd = mispelledWordsCursorEndAux;
@@ -348,5 +355,13 @@ public class Controller {
             notepad.resizeNotepad(width, height);
             sidebar.resizeSideBar(width, height);
         });
+    }
+
+    public void increaseDistance() {
+        distance++;
+    }
+
+    public void resetDistance() {
+        distance = 1;
     }
 }

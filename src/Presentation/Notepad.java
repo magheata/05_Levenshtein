@@ -199,9 +199,8 @@ public class Notepad extends JTextPane {
                                 writtenWord.setPos(startCursor - 1);
                                 writtenWord.setLine(getCurrentRow(startCursor));
                                 controller.addMispelledWord(writtenWord);
-                                auxIdx++;
                                 if (!containsHighlight(auxIdx, auxIdx + word.length())){
-                                    highlighter.addHighlight(auxIdx, auxIdx + word.length(), painter);
+                                     highlighter.addHighlight(auxIdx == 0 ? auxIdx : (auxIdx + 1), (auxIdx == 0 ? auxIdx : (auxIdx + 1)) + word.length(), painter);
                                     highlights = new ArrayList<>(Arrays.asList(highlighter.getHighlights()));
                                 }
                             } catch (BadLocationException badLocationException) {
@@ -245,11 +244,6 @@ public class Notepad extends JTextPane {
         }
     }
 
-    private void printHighlights(){
-        for (Highlighter.Highlight h: highlighter.getHighlights()){
-            System.out.println("Start:" + h.getStartOffset() + " End: " + h.getEndOffset());
-        }
-    }
     public void removeHighlights(){
         highlighter.removeAllHighlights();
     }

@@ -13,6 +13,8 @@ public class Constants {
     public final static int WIDTH_NOTEPAD = (WIDTH_WINDOW) * 70 / 100;
     public final static int HEIGHT_NOTEPAD = HEIGHT_WINDOW;
 
+    public final static int MAX_DISTANCE = 4;
+
     public final static Dimension DIM_WINDOW = new Dimension(WIDTH_WINDOW, HEIGHT_WINDOW);
     public final static Dimension DIM_SIDEBAR = new Dimension(WIDTH_SIDEBAR, HEIGHT_SIDEBAR);
     public final static Dimension DIM_NOTEPAD = new Dimension(WIDTH_NOTEPAD, HEIGHT_NOTEPAD);

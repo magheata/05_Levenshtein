@@ -71,6 +71,10 @@ public class Window extends JFrame {
         sideBarPanel.addToModel(w);
     }
 
+    public void resetModel(){
+        sideBarPanel.resetModel();
+    }
+
     public void removeFromModel(Word word){
         sideBarPanel.removeFromModel(word);
     }

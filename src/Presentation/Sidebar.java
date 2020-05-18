@@ -117,5 +117,10 @@ public class Sidebar extends JPanel {
         this.setSize(new Dimension((width * 30 / 100), height));
         this.setPreferredSize(new Dimension((width * 30 / 100), height));
     }
+
+    public void resetModel() {
+        listModel.clear();
+        this.repaint();
+    }
 }
 
