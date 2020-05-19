@@ -44,8 +44,8 @@ public class Notepad extends JTextPane {
     private void initComponents() {
         executor = Executors.newSingleThreadExecutor();
         charactersInWord = new ArrayList<>();
-        this.setVisible(true);
-        this.setEditable(false);
+        this.setMargin(new Insets(5,5,5,5));
+        this.setEditable(true);
         this.setSize(Constants.DIM_NOTEPAD);
         this.setPreferredSize(Constants.DIM_NOTEPAD);
         this.addKeyListener(new KeyListener() {

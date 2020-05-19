@@ -25,11 +25,11 @@ public class Sidebar extends JPanel {
     private DefaultListModel listModel;
     private ArrayList<Word> erroresArrayList;
     private JList<ArrayList> lista;
-    private Word errorSeleccionado;
-    private SteelCheckBox checkBox;
-
     private int idx;
-    private JMenuBar menuIncorrectas;
+    private JButton correctTextButton;
+    private JButton editTextButton;
+    private JPanel buttonsPanel, wrapperPanel;
+
 
     public Sidebar(Controller controller) {
         this.controller = controller;
@@ -41,20 +41,19 @@ public class Sidebar extends JPanel {
 
     private void initComponents() {
 
-        JPanel wrapperPanel = new JPanel();
+        wrapperPanel = new JPanel();
+
+        buttonsPanel = new JPanel();
+        buttonsPanel.setLayout(new FlowLayout());
+
+        correctTextButton = new JButton("Correct text");
+        editTextButton = new JButton("Edit text");
+
+        buttonsPanel.add(correctTextButton);
+        buttonsPanel.add(editTextButton);
 
         wrapperPanel.setLayout(new BorderLayout());
-        JPanel checkBoxPanel = new JPanel();
-        checkBox = new SteelCheckBox();
-        checkBox.setText("Enable suggestions");
-        checkBox.setColored(true);
-        checkBox.setSelectedColor(ColorDef.RAITH);
-        checkBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                controller.toggleSuggestions();
-            }
-        });
+
         this.setVisible(true);
         this.setLayout(new BorderLayout());
         this.setSize(Constants.DIM_SIDEBAR);
@@ -79,9 +78,7 @@ public class Sidebar extends JPanel {
         });
         this.add(languageSelector, BorderLayout.NORTH);
 
-        checkBoxPanel.add(checkBox);
-
-        wrapperPanel.add(checkBoxPanel, BorderLayout.NORTH);
+        wrapperPanel.add(buttonsPanel, BorderLayout.CENTER);
         wrapperPanel.add(languageSelector, BorderLayout.SOUTH);
         this.add(wrapperPanel, BorderLayout.NORTH);
 
@@ -93,8 +90,6 @@ public class Sidebar extends JPanel {
         lista.addListSelectionListener(le -> {
             if (!le.getValueIsAdjusting()) {
                 idx = lista.getSelectedIndex();
-                //System.out.println(controller.getWord(idx));
-
             }
         });
 

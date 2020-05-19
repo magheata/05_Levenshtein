@@ -23,23 +23,23 @@ import java.util.stream.Collectors;
 
 public class Controller implements IController {
 
-    private Reader reader;
+    private static Reader reader;
     private Utils utils;
-    private SpellChecker spellChecker;
+    private static SpellChecker spellChecker;
     private Language selectedLanguage;
-    private Window window;
-    private Notepad notepad;
+    private static Window window;
+    private static Notepad notepad;
     private Sidebar sidebar;
     private static Dictionary dictionary;
-    private MultiMap<String, String> dict = new MultiMap<String, String>();
+    private static MultiMap<String, String> dict = new MultiMap<String, String>();
     private HashMap<String, Dictionary> languageDictionary = new HashMap<>();
     private HashMap<String, String> dictionaryPath = new HashMap<>();
     private HashMap<String, Language> availableLanguages = new HashMap<>();
-    private HashMap<Integer, Word> mispelledWordsCursorEnd = new HashMap<>();
+    private static HashMap<Integer, Word> mispelledWordsCursorEnd = new HashMap<>();
     private static ArrayList<Word> mispelledWords = new ArrayList<>();
     private boolean dictPopulated = false;
     private static boolean isSoundexDictionary;
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private static ExecutorService executor = Executors.newSingleThreadExecutor();
     private Highlighter.Highlight[] highlights;
     private static int distance = 1;
     private static boolean suggestionsEnabled = false;
@@ -62,8 +62,7 @@ public class Controller implements IController {
         return new SoundexDictionary(path, reader.readDicc(path));
     }
 
-    @Override
-    public boolean findWordInDicctionary(Word wordToFind) {
+    public static boolean findWordInDicctionary(Word wordToFind) {
         if (!wordToFind.getEntry().equals("") && !wordToFind.getEntry().equals(" ")) {
             if (wordToFind.isSoundexWord()) {
                 Collection<String> collection = dict.get(Soundex.soundex(wordToFind.getEntry()));
@@ -103,8 +102,7 @@ public class Controller implements IController {
         return false;
     }
 
-    @Override
-    public void checkText() {
+    public static void checkText() {
         String[] wordsInText = notepad.getText().split(Constants.SYMBOLS_STRING);
         Word word;
         for (String wordToFind : wordsInText) {
@@ -136,8 +134,7 @@ public class Controller implements IController {
         }
     }
 
-    @Override
-    public void openFileChooser(boolean isEditable) {
+    public static void openFileChooser(boolean isEditable) {
         switch (window.getFileChooser().showOpenDialog(window)) {
             case JFileChooser.APPROVE_OPTION:
                 notepad.setNotepadText(reader.getFileContent(window.getFileChooser().getSelectedFile().getAbsolutePath()));
@@ -182,8 +179,7 @@ public class Controller implements IController {
         executor.submit(() -> checkText());
     }
 
-    @Override
-    public void toggleSuggestions() {
+    public static void toggleSuggestions() {
         suggestionsEnabled = !suggestionsEnabled;
     }
 
@@ -198,8 +194,7 @@ public class Controller implements IController {
         return null;
     }
 
-    @Override
-    public void addMispelledWord(Word word) {
+    public static void addMispelledWord(Word word) {
         word.setMispelled(true);
         boolean duplicate = false;
         ArrayList<Word> auxMispelledWord = (ArrayList<Word>) mispelledWords.clone();
@@ -278,7 +273,7 @@ public class Controller implements IController {
         }
     }
 
-    public void addToModel(Word w) {
+    public static void addToModel(Word w) {
         window.addToModel(w);
     }
 
@@ -359,7 +354,7 @@ public class Controller implements IController {
         return isSoundexDictionary;
     }
 
-    public void enableNotepad(boolean isEditable) {
+    public static void enableNotepad(boolean isEditable) {
         notepad.setNotepadEditable(isEditable);
     }
 }
