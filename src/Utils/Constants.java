@@ -97,4 +97,6 @@ public class Constants {
 
     public final static String SYMBOLS_STRING = "[\\.:!¡?¿,;&()=#+\\-_*@{}<>\\ \\\n]";
     public final static ArrayList<String> SOUNDEX_DICTIONARIES = new ArrayList<>(Arrays.asList("english"));
+
+    public final static ArrayList<Integer> KEYS_TO_IGNORE = new ArrayList<>(Arrays.asList(45));
 }

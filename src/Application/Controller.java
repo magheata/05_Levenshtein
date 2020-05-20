@@ -127,20 +127,28 @@ public class Controller implements IController {
         int difference = 0;
         ArrayList<Word> auxMispelledWords = new ArrayList<>(mispelledWords);
         for (Word mispelledWord : auxMispelledWords){
-            int wordStart = (mispelledWord.getPos() + difference) - (mispelledWord.getEntry().length() - 1);
+            int  wordStart = (mispelledWord.getPos() + difference) - mispelledWord.getEntry().length();
+            if (wordStart < 0){
+                wordStart++;
+            }
             String replaceWord = getFirstReplaceWord(mispelledWord);
-            correctedText.replace(wordStart, wordStart + mispelledWord.getEntry().length(), replaceWord);
-            mispelledWords.remove(mispelledWord);
-            difference = difference + replaceWord.length() - mispelledWord.getEntry().length();
-            removeFromModel(mispelledWord);
+            if (replaceWord != null){
+                correctedText.replace(wordStart, wordStart + mispelledWord.getEntry().length(), replaceWord);
+                mispelledWords.remove(mispelledWord);
+                difference = difference + replaceWord.length() - mispelledWord.getEntry().length();
+                removeFromModel(mispelledWord);
+            }
         }
         notepad.setText(correctedText.toString());
     }
 
     private static String getFirstReplaceWord(Word word){
         int distance = 1;
-        while (word.getReplaceWords(distance) == null || word.getReplaceWords(distance).isEmpty()){
+        while (word.getReplaceWords(distance) == null || word.getReplaceWords(distance).isEmpty() || distance <= Constants.MAX_DISTANCE){
             distance++;
+        }
+        if (distance > Constants.MAX_DISTANCE){
+            return null;
         }
         return word.getReplaceWords(distance).get(0).getEntry();
     }
@@ -383,6 +391,7 @@ public class Controller implements IController {
     }
 
     public static void enableNotepad(boolean isEditable) {
+        notepad.setText("");
         notepad.setNotepadEditable(isEditable);
     }
 }

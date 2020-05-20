@@ -176,12 +176,18 @@ public class Notepad extends JTextPane {
         } else {
             boolean checkWord = false;
             KeyStroke eventKeystroke = KeyStroke.getKeyStrokeForEvent(e);
-
             for (char specialChar : Constants.SYMBOLS) {
                 KeyStroke charKeystroke = KeyStroke.getKeyStroke(specialChar, 0);
+                String keyCodeChar = KeyEvent.getKeyText(e.getKeyCode());
                 if (eventKeystroke.equals(charKeystroke)) {
                     checkWord = true;
                     break;
+                }
+            }
+            if (!checkWord){
+                char charAtStart = text.charAt(startCursor);
+                if (Constants.SYMBOLS.contains(charAtStart)){
+                    checkWord = true;
                 }
             }
             if (checkWord) {
