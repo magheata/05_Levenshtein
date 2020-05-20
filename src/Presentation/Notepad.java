@@ -7,7 +7,10 @@ import Utils.Constants;
 import Utils.UnderlineHighlightPainter;
 
 import javax.swing.*;
-import javax.swing.text.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
+import javax.swing.text.Utilities;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -34,7 +37,8 @@ public class Notepad extends JTextPane {
     private ArrayList<Highlighter.Highlight> highlights = new ArrayList<>();
 
     private int selectionStart;
-;
+    ;
+
     public Notepad(Controller controller) {
         this.controller = controller;
         highlighter = this.getHighlighter();
@@ -44,7 +48,7 @@ public class Notepad extends JTextPane {
     private void initComponents() {
         executor = Executors.newSingleThreadExecutor();
         charactersInWord = new ArrayList<>();
-        this.setMargin(new Insets(5,5,5,5));
+        this.setMargin(new Insets(5, 5, 5, 5));
         this.setEditable(true);
         this.setSize(Constants.DIM_NOTEPAD);
         this.setPreferredSize(Constants.DIM_NOTEPAD);
@@ -56,12 +60,12 @@ public class Notepad extends JTextPane {
 
             @Override
             public void keyPressed(KeyEvent e) {
-
+                executor.submit(() -> checkWrittenWordInPanel(e));
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
-                executor.submit(() -> checkWrittenWordInPanel(e));
+
             }
         });
 
@@ -136,11 +140,11 @@ public class Notepad extends JTextPane {
                     }
                     Object[] mispelledWord = controller.isMispelledWord(new Word(text.substring(wordStart, wordEnd), controller.isSoundexDictionary()));
 
-                    if ((boolean) mispelledWord[0]){
+                    if ((boolean) mispelledWord[0]) {
                         Word word = (Word) mispelledWord[1];
                         ArrayList<String> replaceStringWords = new ArrayList<>();
                         Iterator it = word.getReplaceWords(2).iterator();
-                        while (it.hasNext()){
+                        while (it.hasNext()) {
                             Word replaceWord = (Word) it.next();
                             replaceStringWords.add(replaceWord.getEntry());
                         }
@@ -157,27 +161,34 @@ public class Notepad extends JTextPane {
         JTextPane textPane = (JTextPane) e.getComponent();
         int startCursor = textPane.getCaretPosition();
         String text = textPane.getText();
-        if (e.getKeyCode() == 8){
-            if (text.charAt(startCursor - 1) != ' '){
+        if (e.getKeyCode() == 8) {
+            if (text.charAt(startCursor - 1) != ' ') {
                 Map<Integer, Word> mispelledWordsCursor = new TreeMap<>(controller.getMispelledWordsCursorEnd());
                 Object[] keys = mispelledWordsCursor.keySet().toArray();
                 int idx = 0;
-                while (startCursor > (int) keys[idx]){
+                while (startCursor > (int) keys[idx]) {
                     idx++;
                 }
                 Word word = mispelledWordsCursor.get(keys[idx]);
                 controller.deleteMispelledWord((int) keys[idx]);
                 removeHighlightForWord((int) keys[idx] - 1, word.getEntry().length());
             }
-        }
-        else {
-            if ((0 < startCursor) && (startCursor <= text.length())) {
-                int auxIdx = startCursor - 1;
-                char charAtCursor = text.charAt(auxIdx);
-                Word writtenWord;
-                if (Constants.SYMBOLS.contains(charAtCursor)) {
-                    auxIdx--;
-                    charAtCursor = text.charAt(auxIdx);
+        } else {
+            boolean checkWord = false;
+            KeyStroke eventKeystroke = KeyStroke.getKeyStrokeForEvent(e);
+
+            for (char specialChar : Constants.SYMBOLS) {
+                KeyStroke charKeystroke = KeyStroke.getKeyStroke(specialChar, 0);
+                if (eventKeystroke.equals(charKeystroke)) {
+                    checkWord = true;
+                    break;
+                }
+            }
+            if (checkWord) {
+                if ((0 < startCursor) && (startCursor <= text.length())) {
+                    int auxIdx = startCursor - 1;
+                    char charAtCursor = text.charAt(auxIdx);
+                    Word writtenWord;
                     while (!Constants.SYMBOLS.contains(charAtCursor)) {
                         charactersInWord.add(charAtCursor);
                         if (auxIdx > 0) {
@@ -187,7 +198,7 @@ public class Notepad extends JTextPane {
                             break;
                         }
                     }
-                    if (charactersInWord.size() > 0){
+                    if (charactersInWord.size() > 0) {
                         Collections.reverse(charactersInWord);
                         StringBuilder word = new StringBuilder();
                         for (Character ch : charactersInWord) {
@@ -199,28 +210,59 @@ public class Notepad extends JTextPane {
                                 writtenWord.setPos(startCursor - 1);
                                 writtenWord.setLine(getCurrentRow(startCursor));
                                 controller.addMispelledWord(writtenWord);
-                                if (!containsHighlight(auxIdx, auxIdx + word.length())){
-                                     highlighter.addHighlight(auxIdx == 0 ? auxIdx : (auxIdx + 1), (auxIdx == 0 ? auxIdx : (auxIdx + 1)) + word.length(), painter);
+                                if (!containsHighlight(auxIdx, auxIdx + word.length())) {
+                                    highlighter.addHighlight(auxIdx == 0 ? auxIdx : (auxIdx + 1), (auxIdx == 0 ? auxIdx : (auxIdx + 1)) + word.length(), painter);
                                     highlights = new ArrayList<>(Arrays.asList(highlighter.getHighlights()));
                                 }
                             } catch (BadLocationException badLocationException) {
 
                             }
-                            System.out.println(word.toString() + " is mispelled. Maybe you meant: ");
-                            for (Word entry : writtenWord.getReplaceWords(1)) {
-                                System.out.println(entry.getEntry());
-                            }
                         }
                         charactersInWord.clear();
                     }
+                     /* if (Constants.SYMBOLS.contains(charAtCursor)) {
+                         auxIdx--;
+                         charAtCursor = text.charAt(auxIdx);
+                         while (!Constants.SYMBOLS.contains(charAtCursor)) {
+                             charactersInWord.add(charAtCursor);
+                             if (auxIdx > 0) {
+                                 auxIdx--;
+                                 charAtCursor = text.charAt(auxIdx);
+                             } else {
+                                 break;
+                             }
+                         }
+                         if (charactersInWord.size() > 0){
+                             Collections.reverse(charactersInWord);
+                             StringBuilder word = new StringBuilder();
+                             for (Character ch : charactersInWord) {
+                                 word.append(ch);
+                             }
+                             writtenWord = new Word(word.toString(), controller.isSoundexDictionary());
+                             if (!controller.findWordInDicctionary(writtenWord)) {
+                                 try {
+                                     writtenWord.setPos(startCursor - 1);
+                                     writtenWord.setLine(getCurrentRow(startCursor));
+                                     controller.addMispelledWord(writtenWord);
+                                     if (!containsHighlight(auxIdx, auxIdx + word.length())){
+                                         highlighter.addHighlight(auxIdx == 0 ? auxIdx : (auxIdx + 1), (auxIdx == 0 ? auxIdx : (auxIdx + 1)) + word.length(), painter);
+                                         highlights = new ArrayList<>(Arrays.asList(highlighter.getHighlights()));
+                                     }
+                                 } catch (BadLocationException badLocationException) {
+
+                                 }
+                             }
+                             charactersInWord.clear();
+                         }
+                     } */
                 }
             }
         }
     }
 
-    private int getCurrentRow(int caretPos){
+    private int getCurrentRow(int caretPos) {
         int rowNum = (caretPos == 0) ? 1 : 0;
-        for (int offset = caretPos; offset > 0;) {
+        for (int offset = caretPos; offset > 0; ) {
             try {
                 offset = Utilities.getRowStart(this, offset) - 1;
             } catch (BadLocationException e) {
@@ -235,7 +277,7 @@ public class Notepad extends JTextPane {
         try {
             String text = this.getText();
             int indexWord = text.toLowerCase().indexOf(word.getEntry().toLowerCase());
-            if (!containsHighlight(indexWord, indexWord + word.getEntry().length())){
+            if (!containsHighlight(indexWord, indexWord + word.getEntry().length())) {
                 highlighter.addHighlight(indexWord, indexWord + word.getEntry().length(), painter);
                 highlights = new ArrayList<>(Arrays.asList(highlighter.getHighlights()));
             }
@@ -244,16 +286,16 @@ public class Notepad extends JTextPane {
         }
     }
 
-    public void removeHighlights(){
+    public void removeHighlights() {
         highlighter.removeAllHighlights();
     }
 
-    public int getWordRow(Word word){
+    public int getWordRow(Word word) {
         String text = this.getText();
         ArrayList<Integer> eofIndex = new ArrayList<>();
         int index = text.indexOf("\n");
         int row = 0;
-        if (index == -1){
+        if (index == -1) {
             return row;
         } else {
             while (index >= 0) {
@@ -261,8 +303,8 @@ public class Notepad extends JTextPane {
                 index = text.indexOf("\n", index + 1);
             }
 
-            for (int eof : eofIndex){
-                if (text.indexOf(word.getEntry()) > eof){
+            for (int eof : eofIndex) {
+                if (text.indexOf(word.getEntry()) > eof) {
                     row++;
                 } else {
                     return row;
@@ -272,9 +314,9 @@ public class Notepad extends JTextPane {
         return row;
     }
 
-    public void removeHighlightForWord(int cursorPos, int length){
-        for (Highlighter.Highlight highlight : highlights){
-            if ((highlight.getStartOffset() >= (cursorPos + length)) && (highlight.getEndOffset() >= (cursorPos + length)) && (highlight.getStartOffset() == highlight.getEndOffset())){
+    public void removeHighlightForWord(int cursorPos, int length) {
+        for (Highlighter.Highlight highlight : highlights) {
+            if ((highlight.getStartOffset() >= (cursorPos + length)) && (highlight.getEndOffset() >= (cursorPos + length)) && (highlight.getStartOffset() == highlight.getEndOffset())) {
                 highlighter.removeHighlight(highlight);
                 highlights = new ArrayList<>(Arrays.asList(highlighter.getHighlights()));
                 break;
@@ -282,10 +324,10 @@ public class Notepad extends JTextPane {
         }
     }
 
-    public boolean containsHighlight(int start, int end){
-        if (highlights.size() > 0){
-            for (Highlighter.Highlight h : highlights){
-                if ((h.getStartOffset() == start) && (h.getEndOffset() == end)){
+    public boolean containsHighlight(int start, int end) {
+        if (highlights.size() > 0) {
+            for (Highlighter.Highlight h : highlights) {
+                if ((h.getStartOffset() == start) && (h.getEndOffset() == end)) {
                     return true;
                 }
             }

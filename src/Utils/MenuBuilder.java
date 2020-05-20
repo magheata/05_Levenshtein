@@ -4,6 +4,7 @@ package Utils;
 import Application.Controller;
 import Presentation.Window;
 
+import javax.naming.ldap.Control;
 import javax.swing.*;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
@@ -35,10 +36,8 @@ public class MenuBuilder {
     public final static ArrayList<String> ADD_SEPARATION_AFTER = new ArrayList<>(Arrays.asList(
             Constants.TEXT_REDO_ITEM,
             Constants.TEXT_NEW_FROM_EXISTING_ITEM,
-            Constants.TEXT_SPELLING_ITEM,
-            Constants.TEXT_HIDE_PANEL_ITEM,
-            Constants.TEXT_SHOW_PANEL_ITEM)
-    );
+            Constants.TEXT_SPELLING_ITEM
+    ));
 
     public final static Map<String, ArrayList<String>> MAP_MENU_ITEMS = Map.ofEntries(
             new AbstractMap.SimpleEntry<>(Constants.TEXT_FILE_MENU, new ArrayList<>() {
@@ -68,6 +67,7 @@ public class MenuBuilder {
             ),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_TOOLS_MENU, new ArrayList<>() {
                 {
+                    add(Constants.TEXT_ENABLE_EDIT_ITEM);
                     add(Constants.TEXT_SPELLING_ITEM);
                     add(Constants.TEXT_FIND_WORD_ITEM);
                     add(Constants.TEXT_FIND_REPLACE_WORD_ITEM);
@@ -119,6 +119,7 @@ public class MenuBuilder {
             new AbstractMap.SimpleEntry<>(Constants.TEXT_OPEN_FILE_ITEM, Constants.PATH_OPEN_FILE_ICON),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_ENABLE_SUGGESTIONS_ITEM, Constants.PATH_SUGGESTIONS_ICON),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_DISABLE_SUGGESTIONS_ITEM, Constants.PATH_SUGGESTIONS_ICON),
+            new AbstractMap.SimpleEntry<>(Constants.TEXT_ENABLE_EDIT_ITEM, Constants.PATH_EDIT_FILE_ICON),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_LANGUAGE_SUBMENU, Constants.PATH_LANGUAGE_ICON),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_SPELLING_ITEM, Constants.PATH_SPELLING_ICON),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_FIND_WORD_ITEM, Constants.PATH_FIND_ICON),
@@ -135,9 +136,18 @@ public class MenuBuilder {
     public final static Map<String, ActionListener> MENU_ACTIONLISTENERS = Map.ofEntries(
             new AbstractMap.SimpleEntry<>(Constants.TEXT_UNDO_ITEM, undoAction),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_REDO_ITEM, redoAction),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_CUT_ITEM, e -> Window.getActionByName(DefaultEditorKit.cutAction)),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_COPY_ITEM, e -> Window.getActionByName(DefaultEditorKit.copyAction)),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_PASTE_ITEM, e -> Window.getActionByName(DefaultEditorKit.pasteAction)),
+            new AbstractMap.SimpleEntry<>(Constants.TEXT_CUT_ITEM, e -> {
+                Window.getActionByName(DefaultEditorKit.cutAction);
+                Controller.checkText();
+            }),
+            new AbstractMap.SimpleEntry<>(Constants.TEXT_COPY_ITEM, e -> {
+                Window.getActionByName(DefaultEditorKit.copyAction);
+                Controller.checkText();
+            }),
+            new AbstractMap.SimpleEntry<>(Constants.TEXT_PASTE_ITEM, e -> {
+                Window.getActionByName(DefaultEditorKit.pasteAction);
+                Controller.checkText();
+            }),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_NEW_FILE_ITEM, e -> Controller.enableNotepad(true)),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_NEW_FROM_EXISTING_ITEM, e -> Controller.openFileChooser(true)),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_OPEN_FILE_ITEM, e -> Controller.openFileChooser(false)),
@@ -160,7 +170,7 @@ public class MenuBuilder {
             new AbstractMap.SimpleEntry<>(Constants.TEXT_SPELLING_ITEM, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-
+                    Controller.correctSpellingFromText();
                 }
             }),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_FIND_WORD_ITEM, new ActionListener() {
@@ -225,6 +235,7 @@ public class MenuBuilder {
         public void actionPerformed(ActionEvent e) {
             try {
                 undo.undo();
+                Controller.checkText();
             } catch (CannotUndoException ex) {
             }
             updateUndoState();
@@ -251,6 +262,7 @@ public class MenuBuilder {
         public void actionPerformed(ActionEvent e) {
             try {
                 undo.redo();
+                Controller.checkText();
             } catch (CannotRedoException ex) {
 
             }

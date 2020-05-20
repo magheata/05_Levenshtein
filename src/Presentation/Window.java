@@ -200,14 +200,13 @@ public class Window extends JFrame {
 
     //The following two methods allow us to find an
     //action provided by the editor kit by its name.
-    private HashMap<Object, Action> createActionTable(JTextComponent textComponent) {
-        HashMap<Object, Action> actions = new HashMap<Object, Action>();
+    private void createActionTable(JTextComponent textComponent) {
+         actions = new HashMap<>();
         Action[] actionsArray = textComponent.getActions();
         for (int i = 0; i < actionsArray.length; i++) {
             Action a = actionsArray[i];
             actions.put(a.getValue(Action.NAME), a);
         }
-        return actions;
     }
 
     public static Action getActionByName(String name) {

@@ -38,6 +38,7 @@ public class Constants {
     public final static String PATH_PASTE_ICON = "src/Presentation/Images/pasteText.png";
     public final static String PATH_REDO_ICON = "src/Presentation/Images/redo.png";
     public final static String PATH_ADD_FILE_ICON = "src/Presentation/Images/add.png";
+    public final static String PATH_EDIT_FILE_ICON = "src/Presentation/Images/edit.png";
     public final static String PATH_SUGGESTIONS_ICON = "src/Presentation/Images/suggestions.png";
     public final static String PATH_LANGUAGE_ICON = "src/Presentation/Images/language.png";
     public final static String PATH_FIND_ICON = "src/Presentation/Images/find.png";
@@ -68,6 +69,7 @@ public class Constants {
 
     public final static String TEXT_TOOLS_MENU = "Tools";
     public final static String TEXT_SPELLING_ITEM = "Correct spelling";
+    public final static String TEXT_ENABLE_EDIT_ITEM = "Edit file";
     public final static String TEXT_FIND_WORD_ITEM = "Find";
     public final static String TEXT_FIND_REPLACE_WORD_ITEM = "Replace...";
 

@@ -103,6 +103,8 @@ public class Controller implements IController {
     }
 
     public static void checkText() {
+        window.resetModel();
+        mispelledWords.clear();
         String[] wordsInText = notepad.getText().split(Constants.SYMBOLS_STRING);
         Word word;
         for (String wordToFind : wordsInText) {
@@ -117,6 +119,30 @@ public class Controller implements IController {
                 }
             }
         }
+    }
+
+    public static void correctSpellingFromText(){
+        StringBuilder correctedText = new StringBuilder();
+        correctedText.append(notepad.getText());
+        int difference = 0;
+        ArrayList<Word> auxMispelledWords = new ArrayList<>(mispelledWords);
+        for (Word mispelledWord : auxMispelledWords){
+            int wordStart = (mispelledWord.getPos() + difference) - (mispelledWord.getEntry().length() - 1);
+            String replaceWord = getFirstReplaceWord(mispelledWord);
+            correctedText.replace(wordStart, wordStart + mispelledWord.getEntry().length(), replaceWord);
+            mispelledWords.remove(mispelledWord);
+            difference = difference + replaceWord.length() - mispelledWord.getEntry().length();
+            removeFromModel(mispelledWord);
+        }
+        notepad.setText(correctedText.toString());
+    }
+
+    private static String getFirstReplaceWord(Word word){
+        int distance = 1;
+        while (word.getReplaceWords(distance) == null || word.getReplaceWords(distance).isEmpty()){
+            distance++;
+        }
+        return word.getReplaceWords(distance).get(0).getEntry();
     }
 
     @Override
@@ -156,7 +182,6 @@ public class Controller implements IController {
 
     @Override
     public void setSelectedLanguage(Language selectedLanguage) {
-        window.resetModel();
         notepad.removeHighlights();
         mispelledWords.clear();
         this.selectedLanguage = selectedLanguage;
@@ -221,7 +246,6 @@ public class Controller implements IController {
         } else {
             mispelledWordsCursorEnd.put(word.getPos(), word);
         }
-        System.out.println(mispelledWords.toString());
     }
 
     @Override
@@ -275,6 +299,10 @@ public class Controller implements IController {
 
     public static void addToModel(Word w) {
         window.addToModel(w);
+    }
+
+    public static void removeFromModel(Word w) {
+        window.removeFromModel(w);
     }
 
     @Override
