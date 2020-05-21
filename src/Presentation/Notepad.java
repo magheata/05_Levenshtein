@@ -272,7 +272,6 @@ public class Notepad extends JTextPane {
             try {
                 offset = Utilities.getRowStart(this, offset) - 1;
             } catch (BadLocationException e) {
-                e.printStackTrace();
             }
             rowNum++;
         }
@@ -288,7 +287,6 @@ public class Notepad extends JTextPane {
                 highlights = new ArrayList<>(Arrays.asList(highlighter.getHighlights()));
             }
         } catch (BadLocationException e) {
-            e.printStackTrace();
         }
     }
 

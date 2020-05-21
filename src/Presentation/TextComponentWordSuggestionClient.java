@@ -46,7 +46,6 @@ public class TextComponentWordSuggestionClient implements ISuggestionClient<JTex
                 }
             }
         } catch (BadLocationException e) {
-            System.err.println(e);
         }
     }
 
@@ -64,7 +63,6 @@ public class TextComponentWordSuggestionClient implements ISuggestionClient<JTex
             String text = tp.getText(previousWordIndex, cp - previousWordIndex);
             return suggestionProvider.apply(text.trim());
         } catch (BadLocationException e) {
-            System.err.println(e);
         }
         return null;
     }

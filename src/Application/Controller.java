@@ -27,6 +27,7 @@ public class Controller implements IController {
     private Utils utils;
     private static SpellChecker spellChecker;
     private Language selectedLanguage;
+    private static FindPanel findPanel;
     private static Window window;
     private static Notepad notepad;
     private Sidebar sidebar;
@@ -103,58 +104,62 @@ public class Controller implements IController {
     }
 
     public static void checkText() {
-        window.resetModel();
-        mispelledWords.clear();
-        String[] wordsInText = notepad.getText().split(Constants.SYMBOLS_STRING);
-        Word word;
-        int index;
-        int oldIndex = -1;
-        for (String wordToFind : wordsInText) {
-            if ((!wordToFind.equals("")) && (!wordToFind.equals(" "))) {
-                word = new Word(wordToFind, dictionary.getType().equals(Constants.PATH_DICC_EN) ? true : false);
-                if (!findWordInDicctionary(word)) {
-                    int row = notepad.getWordRow(word);
-                    index = notepad.getText().indexOf(word.getEntry(), oldIndex + 1);
-                    word.setLine(row);
-                    word.setPos(index + wordToFind.length());
-                    oldIndex = index;
-                    addMispelledWord(word);
-                    notepad.underlineMispelledWord(word);
+        executor.submit(() ->{
+            window.resetModel();
+            mispelledWords.clear();
+            String[] wordsInText = notepad.getText().split(Constants.SYMBOLS_STRING);
+            Word word;
+            int index;
+            int oldIndex = -1;
+            for (String wordToFind : wordsInText) {
+                if ((!wordToFind.equals("")) && (!wordToFind.equals(" "))) {
+                    word = new Word(wordToFind, dictionary.getType().equals(Constants.PATH_DICC_EN) ? true : false);
+                    if (!findWordInDicctionary(word)) {
+                        int row = notepad.getWordRow(word);
+                        index = notepad.getText().indexOf(word.getEntry(), oldIndex + 1);
+                        word.setLine(row);
+                        word.setPos(index + wordToFind.length());
+                        oldIndex = index;
+                        addMispelledWord(word);
+                        notepad.underlineMispelledWord(word);
+                    }
                 }
             }
-        }
+        });
     }
 
     public static void correctSpellingFromText(){
-        StringBuilder correctedText = new StringBuilder();
-        correctedText.append(notepad.getText());
-        int difference = 0;
-        ArrayList<Word> auxMispelledWords = new ArrayList<>(mispelledWords);
-        for (Word mispelledWord : auxMispelledWords){
-            int wordStart = ((mispelledWord.getPos() + difference) - mispelledWord.getEntry().length());
-            boolean firstWord = false;
-            if (wordStart < 0) {
-                firstWord = true;
-            }
-            while (Constants.SYMBOLS.contains(correctedText.charAt(wordStart))){
-                wordStart++;
-            }
-            String replaceWord = getFirstReplaceWord(mispelledWord);
-            if (replaceWord != null){
-                correctedText.delete(firstWord ? (wordStart + 1) : wordStart,
-                        firstWord ? (wordStart + 1) + mispelledWord.getEntry().length() : wordStart + mispelledWord.getEntry().length());
-                for (int i = 0; i < replaceWord.length(); i++){
-                    correctedText.insert(wordStart + i, replaceWord.toCharArray()[i]);
+        executor.submit(() ->{
+            StringBuilder correctedText = new StringBuilder();
+            correctedText.append(notepad.getText());
+            int difference = 0;
+            ArrayList<Word> auxMispelledWords = new ArrayList<>(mispelledWords);
+            for (Word mispelledWord : auxMispelledWords){
+                int wordStart = ((mispelledWord.getPos() + difference) - mispelledWord.getEntry().length());
+                boolean firstWord = false;
+                if (wordStart < 0) {
+                    firstWord = true;
                 }
-                mispelledWords.remove(mispelledWord);
-                difference = difference + (replaceWord.length() - mispelledWord.getEntry().length());
-                if (firstWord){
-                    difference++;
+                while (Constants.SYMBOLS.contains(correctedText.charAt(wordStart))){
+                    wordStart++;
                 }
-                removeFromModel(mispelledWord);
+                String replaceWord = getFirstReplaceWord(mispelledWord);
+                if (replaceWord != null){
+                    correctedText.delete(firstWord ? (wordStart + 1) : wordStart,
+                            firstWord ? (wordStart + 1) + mispelledWord.getEntry().length() : wordStart + mispelledWord.getEntry().length());
+                    for (int i = 0; i < replaceWord.length(); i++){
+                        correctedText.insert(wordStart + i, replaceWord.toCharArray()[i]);
+                    }
+                    mispelledWords.remove(mispelledWord);
+                    difference = difference + (replaceWord.length() - mispelledWord.getEntry().length());
+                    if (firstWord){
+                        difference++;
+                    }
+                    removeFromModel(mispelledWord);
+                }
             }
-        }
-        notepad.setText(correctedText.toString());
+            notepad.setText(correctedText.toString());
+        });
     }
 
     private static String getFirstReplaceWord(Word word){
@@ -413,4 +418,19 @@ public class Controller implements IController {
     public static void enableNotepad(boolean isEditable) {
         notepad.setNotepadEditable(isEditable);
     }
+
+    public static void enableFindPanel(boolean enabled){
+        findPanel.setVisible(enabled);
+        findPanel.enableFindPanel(enabled);
+    }
+
+    public static void enableFindReplacePanel(boolean enabled){
+        findPanel.setVisible(enabled);
+        findPanel.enableFindReplacePanel(enabled);
+    }
+
+    public void setFindPanel(FindPanel findPanel) {
+        this.findPanel = findPanel;
+    }
+
 }

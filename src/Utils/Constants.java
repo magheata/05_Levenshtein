@@ -13,11 +13,11 @@ import java.util.*;
 
 public class Constants {
 
-    public final static int WIDTH_WINDOW = 700;
+    public final static int WIDTH_WINDOW = 710;
     public final static int HEIGHT_WINDOW = 750;
     public final static int WIDTH_SIDEBAR = (WIDTH_WINDOW) * 30 / 100;
     public final static int HEIGHT_SIDEBAR = HEIGHT_WINDOW;
-    public final static int WIDTH_NOTEPAD = (WIDTH_WINDOW) * 70 / 100;
+    public final static int WIDTH_NOTEPAD = (WIDTH_WINDOW) * 69 / 100;
     public final static int HEIGHT_NOTEPAD = HEIGHT_WINDOW;
 
     public final static int MAX_DISTANCE = 4;
@@ -46,6 +46,9 @@ public class Constants {
     public final static String PATH_SPELLING_ICON = "src/Presentation/Images/spelling.png";
     public final static String PATH_CARET_ICON = "src/Presentation/Images/caret.png";
     public final static String PATH_PANEL_ICON = "src/Presentation/Images/panel.png";
+    public final static String PATH_UP_ARROW_ICON = "src/Presentation/Images/up-arrow.png";
+    public final static String PATH_DOWN_ARROW_ICON = "src/Presentation/Images/down-arrow.png";
+    public final static String PATH_CLOSE_ICON = "src/Presentation/Images/close.png";
     public final static String PATH_EN_ICON = "src/Presentation/Images/english.png";
     public final static String PATH_ES_ICON = "src/Presentation/Images/español.png";
 

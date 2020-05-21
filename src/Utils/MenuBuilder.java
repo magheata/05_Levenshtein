@@ -172,13 +172,13 @@ public class MenuBuilder {
             new AbstractMap.SimpleEntry<>(Constants.TEXT_FIND_WORD_ITEM, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-
+                    Controller.enableFindPanel(true);
                 }
             }),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_FIND_REPLACE_WORD_ITEM, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-
+                    Controller.enableFindReplacePanel(true);
                 }
             }),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_HIDE_PANEL_ITEM, new ActionListener() {

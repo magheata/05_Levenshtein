@@ -25,6 +25,7 @@ public class Window extends JFrame {
     private Controller controller;
     private Sidebar sideBarPanel;
     private Notepad notepadPanel;
+    private FindPanel findPanel;
     private JFileChooser fileChooser;
     private static HashMap<Object, Action> actions;
     //undo helpers
@@ -40,7 +41,7 @@ public class Window extends JFrame {
         this.setSize(Constants.DIM_WINDOW);
         this.setPreferredSize(Constants.DIM_WINDOW);
         this.setMinimumSize(Constants.DIM_WINDOW);
-
+        this.setResizable(false);
         //Create the status area.
         JPanel statusPane = new JPanel(new GridLayout(1, 1));
         CaretListenerLabel caretListenerLabel = new CaretListenerLabel("Caret Status");
@@ -53,18 +54,22 @@ public class Window extends JFrame {
 
         sideBarPanel = new Sidebar(controller);
 
-        this.getContentPane().addComponentListener(new ComponentAdapter() {
+        /*this.getContentPane().addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
                 super.componentResized(e);
                 controller.resizePanels(e.getComponent().getWidth(), e.getComponent().getHeight());
             }
-        });
+        });*/
+
+        findPanel = new FindPanel(controller);
+        controller.setFindPanel(findPanel);
 
         this.add(new JScrollPane(notepadPanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.WEST);
         this.add(new JSeparator(SwingConstants.VERTICAL));
         this.add(sideBarPanel, BorderLayout.EAST);
+        this.add(findPanel, BorderLayout.PAGE_START);
         this.add(statusPane, BorderLayout.PAGE_END);
         this.setJMenuBar(createMenuBar());
         this.setVisible(true);
