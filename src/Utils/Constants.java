@@ -70,6 +70,7 @@ public class Constants {
     public final static String TEXT_TOOLS_MENU = "Tools";
     public final static String TEXT_SPELLING_ITEM = "Correct spelling";
     public final static String TEXT_ENABLE_EDIT_ITEM = "Edit file";
+    public final static String TEXT_DISABLE_EDIT_ITEM = "Stop editing file";
     public final static String TEXT_FIND_WORD_ITEM = "Find";
     public final static String TEXT_FIND_REPLACE_WORD_ITEM = "Replace...";
 
@@ -91,6 +92,7 @@ public class Constants {
     public final static String KEYSTROKE_CUT = "control X";
     public final static String KEYSTROKE_COPY = "control C";
     public final static String KEYSTROKE_PASTE = "control V";
+    public final static String KEYSTROKE_EDIT = "control E";
 
     public final static ArrayList<Character> SYMBOLS = new ArrayList<>(Arrays.asList('.', ':', '!', '¡', '?', '¿', ',', ';',
             '&', '(', ')', '=', '#', '+', '-', '_', '*', '@', '{', '<', '>', '}', ' ', '\n'));

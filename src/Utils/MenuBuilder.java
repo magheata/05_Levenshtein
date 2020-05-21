@@ -4,7 +4,6 @@ package Utils;
 import Application.Controller;
 import Presentation.Window;
 
-import javax.naming.ldap.Control;
 import javax.swing.*;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
@@ -105,7 +104,9 @@ public class MenuBuilder {
             new AbstractMap.SimpleEntry<>(Constants.TEXT_HIDE_PANEL_ITEM, Constants.KEYSTROKE_MISPELLED_PANEL),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_HIDE_CARET_ITEM, Constants.KEYSTROKE_CARET),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_SHOW_PANEL_ITEM, Constants.KEYSTROKE_MISPELLED_PANEL),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_SHOW_CARET_ITEM, Constants.KEYSTROKE_CARET)
+            new AbstractMap.SimpleEntry<>(Constants.TEXT_SHOW_CARET_ITEM, Constants.KEYSTROKE_CARET),
+            new AbstractMap.SimpleEntry<>(Constants.TEXT_ENABLE_EDIT_ITEM, Constants.KEYSTROKE_EDIT),
+            new AbstractMap.SimpleEntry<>(Constants.TEXT_DISABLE_EDIT_ITEM, Constants.KEYSTROKE_EDIT)
     );
 
     public final static Map<String, String> MENU_ICONS = Map.ofEntries(
@@ -148,7 +149,7 @@ public class MenuBuilder {
                 Window.getActionByName(DefaultEditorKit.pasteAction);
                 Controller.checkText();
             }),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_NEW_FILE_ITEM, e -> Controller.enableNotepad(true)),
+            new AbstractMap.SimpleEntry<>(Constants.TEXT_NEW_FILE_ITEM, e -> Controller.resetNotepad(true)),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_NEW_FROM_EXISTING_ITEM, e -> Controller.openFileChooser(true)),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_OPEN_FILE_ITEM, e -> Controller.openFileChooser(false)),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_ENABLE_SUGGESTIONS_ITEM, e -> {
@@ -167,12 +168,7 @@ public class MenuBuilder {
                 }
                 Controller.toggleSuggestions();
             }),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_SPELLING_ITEM, new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    Controller.correctSpellingFromText();
-                }
-            }),
+            new AbstractMap.SimpleEntry<>(Constants.TEXT_SPELLING_ITEM, e -> Controller.correctSpellingFromText()),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_FIND_WORD_ITEM, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -208,6 +204,26 @@ public class MenuBuilder {
                 public void actionPerformed(ActionEvent e) {
 
                 }
+            }),
+            new AbstractMap.SimpleEntry<>(Constants.TEXT_ENABLE_EDIT_ITEM, e -> {
+                if (MENU_ITEMS.get(Constants.TEXT_ENABLE_EDIT_ITEM).getText().equals(Constants.TEXT_ENABLE_EDIT_ITEM)){
+                    MENU_ITEMS.get(Constants.TEXT_ENABLE_EDIT_ITEM).setText(Constants.TEXT_DISABLE_EDIT_ITEM);
+                    Controller.enableNotepad(true);
+                } else {
+                    MENU_ITEMS.get(Constants.TEXT_ENABLE_EDIT_ITEM).setText(Constants.TEXT_ENABLE_EDIT_ITEM);
+                    Controller.enableNotepad(false);
+                    Controller.checkText();
+                }
+            }),
+            new AbstractMap.SimpleEntry<>(Constants.TEXT_DISABLE_EDIT_ITEM, e -> {
+                if (MENU_ITEMS.get(Constants.TEXT_DISABLE_EDIT_ITEM).getText().equals(Constants.TEXT_ENABLE_EDIT_ITEM)){
+                    MENU_ITEMS.get(Constants.TEXT_DISABLE_EDIT_ITEM).setText(Constants.TEXT_DISABLE_EDIT_ITEM);
+                    Controller.enableNotepad(true);
+                } else {
+                    MENU_ITEMS.get(Constants.TEXT_DISABLE_EDIT_ITEM).setText(Constants.TEXT_ENABLE_EDIT_ITEM);
+                    Controller.enableNotepad(false);
+                    Controller.checkText();
+                }
             })
     );
 
@@ -223,7 +239,8 @@ public class MenuBuilder {
             new AbstractMap.SimpleEntry<>(Constants.KEYSTROKE_SPELLING, KeyEvent.VK_R),
             new AbstractMap.SimpleEntry<>(Constants.KEYSTROKE_FIND, KeyEvent.VK_F),
             new AbstractMap.SimpleEntry<>(Constants.KEYSTROKE_MISPELLED_PANEL, KeyEvent.VK_M),
-            new AbstractMap.SimpleEntry<>(Constants.KEYSTROKE_CARET, KeyEvent.VK_K)
+            new AbstractMap.SimpleEntry<>(Constants.KEYSTROKE_CARET, KeyEvent.VK_K),
+            new AbstractMap.SimpleEntry<>(Constants.KEYSTROKE_EDIT, KeyEvent.VK_E)
     );
 
     public static class UndoAction extends AbstractAction {

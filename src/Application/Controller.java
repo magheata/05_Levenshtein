@@ -107,13 +107,17 @@ public class Controller implements IController {
         mispelledWords.clear();
         String[] wordsInText = notepad.getText().split(Constants.SYMBOLS_STRING);
         Word word;
+        int index;
+        int oldIndex = -1;
         for (String wordToFind : wordsInText) {
             if ((!wordToFind.equals("")) && (!wordToFind.equals(" "))) {
                 word = new Word(wordToFind, dictionary.getType().equals(Constants.PATH_DICC_EN) ? true : false);
                 if (!findWordInDicctionary(word)) {
                     int row = notepad.getWordRow(word);
+                    index = notepad.getText().indexOf(word.getEntry(), oldIndex + 1);
                     word.setLine(row);
-                    word.setPos(notepad.getText().indexOf(word.getEntry()) + wordToFind.length());
+                    word.setPos(index + wordToFind.length());
+                    oldIndex = index;
                     addMispelledWord(word);
                     notepad.underlineMispelledWord(word);
                 }
@@ -127,15 +131,26 @@ public class Controller implements IController {
         int difference = 0;
         ArrayList<Word> auxMispelledWords = new ArrayList<>(mispelledWords);
         for (Word mispelledWord : auxMispelledWords){
-            int  wordStart = (mispelledWord.getPos() + difference) - mispelledWord.getEntry().length();
-            if (wordStart < 0){
+            int wordStart = ((mispelledWord.getPos() + difference) - mispelledWord.getEntry().length());
+            boolean firstWord = false;
+            if (wordStart < 0) {
+                firstWord = true;
+            }
+            while (Constants.SYMBOLS.contains(correctedText.charAt(wordStart))){
                 wordStart++;
             }
             String replaceWord = getFirstReplaceWord(mispelledWord);
             if (replaceWord != null){
-                correctedText.replace(wordStart, wordStart + mispelledWord.getEntry().length(), replaceWord);
+                correctedText.delete(firstWord ? (wordStart + 1) : wordStart,
+                        firstWord ? (wordStart + 1) + mispelledWord.getEntry().length() : wordStart + mispelledWord.getEntry().length());
+                for (int i = 0; i < replaceWord.length(); i++){
+                    correctedText.insert(wordStart + i, replaceWord.toCharArray()[i]);
+                }
                 mispelledWords.remove(mispelledWord);
-                difference = difference + replaceWord.length() - mispelledWord.getEntry().length();
+                difference = difference + (replaceWord.length() - mispelledWord.getEntry().length());
+                if (firstWord){
+                    difference++;
+                }
                 removeFromModel(mispelledWord);
             }
         }
@@ -144,7 +159,7 @@ public class Controller implements IController {
 
     private static String getFirstReplaceWord(Word word){
         int distance = 1;
-        while (word.getReplaceWords(distance) == null || word.getReplaceWords(distance).isEmpty() || distance <= Constants.MAX_DISTANCE){
+        while ((word.getReplaceWords(distance) == null || word.getReplaceWords(distance).isEmpty()) && distance <= Constants.MAX_DISTANCE){
             distance++;
         }
         if (distance > Constants.MAX_DISTANCE){
@@ -390,8 +405,12 @@ public class Controller implements IController {
         return isSoundexDictionary;
     }
 
-    public static void enableNotepad(boolean isEditable) {
+    public static void resetNotepad(boolean isEditable) {
         notepad.setText("");
+        notepad.setNotepadEditable(isEditable);
+    }
+
+    public static void enableNotepad(boolean isEditable) {
         notepad.setNotepadEditable(isEditable);
     }
 }

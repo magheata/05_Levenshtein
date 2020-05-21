@@ -73,6 +73,7 @@ public class Window extends JFrame {
 
     private void initNotepadPanel(CaretListenerLabel caretListenerLabel){
         notepadPanel = new Notepad(controller);
+        notepadPanel.setEditable(false);
         controller.setNotepad(notepadPanel);
         notepadPanel.addCaretListener(caretListenerLabel);
         // Add undo/redo actions
@@ -114,7 +115,6 @@ public class Window extends JFrame {
         for (String menu : MenuBuilder.MENU_ITEMS_ORDER){
             JMenu newMenu = new JMenu(menu);
             for (String item : MenuBuilder.MAP_MENU_ITEMS.get(menu)){
-                String keystroke = MenuBuilder.KEYSTROKES.get(menu);
                 if (MenuBuilder.IS_SUBMENU.contains(item)){
                     JMenu subMenuItem = new JMenu(item);
                     for (String subItem : MenuBuilder.MAP_MENU_ITEMS.get(item)){
@@ -130,7 +130,8 @@ public class Window extends JFrame {
                     newMenu.add(subMenuItem);
                 } else {
                     JMenuItem menuItem;
-                    if ((MenuBuilder.KEYSTROKES.get(menu) != null) && (MenuBuilder.KEYSTROKES.get(menu) != "")){
+                    String keystroke = MenuBuilder.KEYSTROKES.get(item);
+                    if ((keystroke!= null) && (keystroke != "")){
                         menuItem = new JMenuItem(item, MenuBuilder.KEYEVENTS.get(keystroke));
                         menuItem.setAccelerator(KeyStroke.getKeyStroke(keystroke));
                     } else {
