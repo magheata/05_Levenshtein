@@ -1,14 +1,6 @@
 package Utils;/* Created by andreea on 05/05/2020 */
 
-import Application.Controller;
-import Presentation.Window;
-
-import javax.swing.*;
-import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.util.*;
 
 public class Constants {
@@ -17,7 +9,7 @@ public class Constants {
     public final static int HEIGHT_WINDOW = 750;
     public final static int WIDTH_SIDEBAR = (WIDTH_WINDOW) * 30 / 100;
     public final static int HEIGHT_SIDEBAR = HEIGHT_WINDOW;
-    public final static int WIDTH_NOTEPAD = (WIDTH_WINDOW) * 69 / 100;
+    public final static int WIDTH_NOTEPAD = (WIDTH_WINDOW) * 68 / 100;
     public final static int HEIGHT_NOTEPAD = HEIGHT_WINDOW;
 
     public final static int MAX_DISTANCE = 4;
@@ -49,6 +41,8 @@ public class Constants {
     public final static String PATH_UP_ARROW_ICON = "src/Presentation/Images/up-arrow.png";
     public final static String PATH_DOWN_ARROW_ICON = "src/Presentation/Images/down-arrow.png";
     public final static String PATH_CLOSE_ICON = "src/Presentation/Images/close.png";
+    public final static String PATH_CORRECT_ICON = "src/Presentation/Images/correct.png";
+    public final static String PATH_INCORRECT_ICON = "src/Presentation/Images/alert.png";
     public final static String PATH_EN_ICON = "src/Presentation/Images/english.png";
     public final static String PATH_ES_ICON = "src/Presentation/Images/español.png";
 
@@ -102,6 +96,4 @@ public class Constants {
 
     public final static String SYMBOLS_STRING = "[\\.:!¡?¿,;&()=#+\\-_*@{}<>\\ \\\n]";
     public final static ArrayList<String> SOUNDEX_DICTIONARIES = new ArrayList<>(Arrays.asList("english"));
-
-    public final static ArrayList<Integer> KEYS_TO_IGNORE = new ArrayList<>(Arrays.asList(45));
 }

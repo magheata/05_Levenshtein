@@ -184,7 +184,13 @@ public class MenuBuilder {
             new AbstractMap.SimpleEntry<>(Constants.TEXT_HIDE_PANEL_ITEM, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-
+                    if (MENU_ITEMS.get(Constants.TEXT_HIDE_PANEL_ITEM).getText().equals(Constants.TEXT_HIDE_PANEL_ITEM)){
+                        MENU_ITEMS.get(Constants.TEXT_HIDE_PANEL_ITEM).setText(Constants.TEXT_SHOW_PANEL_ITEM);
+                        Controller.enableSidebarPanel(false);
+                    } else {
+                        MENU_ITEMS.get(Constants.TEXT_HIDE_PANEL_ITEM).setText(Constants.TEXT_HIDE_PANEL_ITEM);
+                        Controller.enableSidebarPanel(true);
+                    }
                 }
             }),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_HIDE_CARET_ITEM, new ActionListener() {
@@ -196,7 +202,13 @@ public class MenuBuilder {
             new AbstractMap.SimpleEntry<>(Constants.TEXT_SHOW_PANEL_ITEM, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-
+                    if (MENU_ITEMS.get(Constants.TEXT_SHOW_PANEL_ITEM).getText().equals(Constants.TEXT_SHOW_PANEL_ITEM)){
+                        MENU_ITEMS.get(Constants.TEXT_SHOW_PANEL_ITEM).setText(Constants.TEXT_HIDE_PANEL_ITEM);
+                        Controller.enableSidebarPanel(true);
+                    } else {
+                        MENU_ITEMS.get(Constants.TEXT_SHOW_PANEL_ITEM).setText(Constants.TEXT_SHOW_PANEL_ITEM);
+                        Controller.enableSidebarPanel(false);
+                    }
                 }
             }),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_SHOW_CARET_ITEM, new ActionListener() {

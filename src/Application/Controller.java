@@ -14,6 +14,7 @@ import Utils.MultiMap;
 import Utils.Utils;
 
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Highlighter;
 import java.io.*;
 import java.util.*;
@@ -30,7 +31,7 @@ public class Controller implements IController {
     private static FindPanel findPanel;
     private static Window window;
     private static Notepad notepad;
-    private Sidebar sidebar;
+    private static Sidebar sidebar;
     private static Dictionary dictionary;
     private static MultiMap<String, String> dict = new MultiMap<String, String>();
     private HashMap<String, Dictionary> languageDictionary = new HashMap<>();
@@ -159,6 +160,8 @@ public class Controller implements IController {
                 }
             }
             notepad.setText(correctedText.toString());
+            mispelledWordsCursorEnd.clear();
+            window.updateStatusText("No errors in text", new ImageIcon(Constants.PATH_CORRECT_ICON));
         });
     }
 
@@ -210,8 +213,11 @@ public class Controller implements IController {
 
     @Override
     public void setSelectedLanguage(Language selectedLanguage) {
-        notepad.removeHighlights();
         mispelledWords.clear();
+        SwingUtilities.invokeLater(() -> {
+            notepad.removeHighlights();
+            window.setSelectedLanguageLabel(selectedLanguage.getName().substring(0, 1).toUpperCase() + selectedLanguage.getName().substring(1), selectedLanguage.getIcon());
+        });
         this.selectedLanguage = selectedLanguage;
         if (languageDictionary.get(selectedLanguage.getName()) == null) {
             if (Constants.SOUNDEX_DICTIONARIES.contains(selectedLanguage.getName())) {
@@ -267,7 +273,7 @@ public class Controller implements IController {
             mispelledWords.add(word);
             addToModel(word);
         }
-
+        window.updateStatusText(mispelledWords.size() + " mispelled words in text", new ImageIcon(Constants.PATH_INCORRECT_ICON));
         if (mispelledWordsCursorEnd.get(word.getPos()) != null) {
             mispelledWordsCursorEnd.remove(word.getPos());
             mispelledWordsCursorEnd.put(word.getPos(), word);
@@ -278,8 +284,11 @@ public class Controller implements IController {
 
     @Override
     public void deleteMispelledWord(int idx) {
+        if (mispelledWordsCursorEnd.get(idx) == null){
+            idx--;
+        }
         int wordLength = mispelledWordsCursorEnd.get(idx).getEntry().length();
-        notepad.removeHighlightForWord(idx - wordLength, wordLength);
+        notepad.removeUnderlineForWord(idx - wordLength, wordLength);
         Word mispelledWord = mispelledWordsCursorEnd.get(idx);
         for (Word word : mispelledWords) {
             if (word.getEntry().equals(mispelledWord.getEntry())) {
@@ -291,6 +300,12 @@ public class Controller implements IController {
         }
         mispelledWords.remove(mispelledWordsCursorEnd.get(idx));
         mispelledWordsCursorEnd.remove(idx);
+        if (mispelledWords.size() == 0){
+            window.updateStatusText("No errors in text", new ImageIcon(Constants.PATH_CORRECT_ICON));
+
+        } else {
+            window.updateStatusText(mispelledWords.size() + " mispelled words in text", new ImageIcon(Constants.PATH_INCORRECT_ICON));
+        }
     }
 
     @Override
@@ -308,21 +323,7 @@ public class Controller implements IController {
     @Override
     public void replaceMispelledWordFromText(int idx, int lengthDifference) {
         deleteMispelledWord(idx);
-        HashMap<Integer, Word> mispelledWordsCursorEndAux = new HashMap<>(mispelledWordsCursorEnd);
-        Set<Integer> cursorEnds = mispelledWordsCursorEnd.keySet();
-        if (Math.abs(lengthDifference) != 0) {
-            int newCursorEnd;
-            for (int cursorEnd : cursorEnds) {
-                if (cursorEnd > idx){
-                    Word word = mispelledWordsCursorEndAux.get(cursorEnd);
-                    newCursorEnd = cursorEnd + lengthDifference;
-                    word.setPos(newCursorEnd);
-                    mispelledWordsCursorEndAux.put(newCursorEnd, word);
-                    mispelledWordsCursorEndAux.remove(cursorEnd);
-                }
-            }
-            mispelledWordsCursorEnd = mispelledWordsCursorEndAux;
-        }
+        updateMispelledCursorEnds(idx, lengthDifference);
     }
 
     public static void addToModel(Word w) {
@@ -395,7 +396,6 @@ public class Controller implements IController {
         return mispelledWordsCursorEnd;
     }
 
-
     public void setNotepad(Notepad notepad) {
         this.notepad = notepad;
         SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordSuggestionClient(Controller::getWords));
@@ -413,6 +413,7 @@ public class Controller implements IController {
     public static void resetNotepad(boolean isEditable) {
         notepad.setText("");
         notepad.setNotepadEditable(isEditable);
+        window.showStatusText(false);
     }
 
     public static void enableNotepad(boolean isEditable) {
@@ -424,6 +425,17 @@ public class Controller implements IController {
         findPanel.enableFindPanel(enabled);
     }
 
+    public static void enableSidebarPanel(boolean enabled){
+        sidebar.setVisible(enabled);
+        if (enabled){
+            notepad.setSize(Constants.DIM_NOTEPAD);
+            notepad.setPreferredSize(Constants.DIM_NOTEPAD);
+        } else {
+            notepad.setSize(Constants.DIM_WINDOW);
+            notepad.setPreferredSize(Constants.DIM_WINDOW);
+        }
+    }
+
     public static void enableFindReplacePanel(boolean enabled){
         findPanel.setVisible(enabled);
         findPanel.enableFindReplacePanel(enabled);
@@ -433,4 +445,63 @@ public class Controller implements IController {
         this.findPanel = findPanel;
     }
 
+    public ArrayList<Integer> findWordInText(String wordToFind){
+        removeFindWordHighlights();
+        String text = notepad.getText();
+        ArrayList<Integer> indexes = new ArrayList<>();
+        int index = text.indexOf(wordToFind);
+        while (index != -1){
+            int finalIndex = index;
+            SwingUtilities.invokeLater(() -> notepad.highlightWordInText(finalIndex, wordToFind.length()));
+            indexes.add(index);
+            index = text.indexOf(wordToFind, index + 1);
+        }
+        return indexes;
+    }
+
+    public void removeFindWordHighlights(){
+        SwingUtilities.invokeLater(() -> notepad.removeFindWordHighlights());
+    }
+
+    public void setCursorPosInNotepad(int currentIndex) {
+        SwingUtilities.invokeLater(() -> window.setCaretPosition(currentIndex));
+    }
+
+    public void replaceWord(int index, int length, String text) {
+        try {
+            int difference = text.length() - length;
+            updateMispelledCursorEnds(index, difference);
+            notepad.getDocument().remove(index, length);
+            notepad.getDocument().insertString(index, text, null);
+        } catch (BadLocationException e) {
+        }
+    }
+
+    private void updateMispelledCursorEnds(int idx, int lengthDifference) {
+        HashMap<Integer, Word> mispelledWordsCursorEndAux = new HashMap<>(mispelledWordsCursorEnd);
+        Set<Integer> cursorEnds = mispelledWordsCursorEnd.keySet();
+        if (Math.abs(lengthDifference) != 0) {
+            int newCursorEnd;
+            for (int cursorEnd : cursorEnds) {
+                if (cursorEnd > idx){
+                    Word word = mispelledWordsCursorEndAux.get(cursorEnd);
+                    newCursorEnd = cursorEnd + lengthDifference;
+                    word.setPos(newCursorEnd);
+                    mispelledWordsCursorEndAux.put(newCursorEnd, word);
+                    mispelledWordsCursorEndAux.remove(cursorEnd);
+                }
+            }
+            mispelledWordsCursorEnd = mispelledWordsCursorEndAux;
+        }
+    }
+
+    public void removeMispelledWordsBetweenSelection(int selectionStart, int selectionEnd) {
+        for (int idx : mispelledWordsCursorEnd.keySet()){
+            if ((selectionStart <= idx)  && (idx <= selectionEnd)){
+                removeFromModel(mispelledWordsCursorEnd.get(idx));
+                mispelledWords.remove(mispelledWordsCursorEnd.get(idx));
+                mispelledWordsCursorEnd.remove(idx);
+            }
+        }
+    }
 }

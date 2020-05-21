@@ -9,15 +9,13 @@ import Utils.DocumentSizeFilter;
 import Utils.MenuBuilder;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.*;
-import javax.swing.undo.UndoManager;
 import java.awt.*;
-import java.awt.event.*;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Window extends JFrame {
@@ -27,9 +25,11 @@ public class Window extends JFrame {
     private Notepad notepadPanel;
     private FindPanel findPanel;
     private JFileChooser fileChooser;
+    private JScrollPane scrollPane;
     private static HashMap<Object, Action> actions;
     //undo helpers
     static final int MAX_CHARACTERS = 300;
+    private static JLabel languageSelectedLabel, statusTextLabel;
 
     public Window(Controller controller) {
         this.controller = controller;
@@ -49,6 +49,22 @@ public class Window extends JFrame {
 
         initNotepadPanel(caretListenerLabel);
 
+        JPanel wrapperNotepad = new JPanel();
+        wrapperNotepad.setLayout(new BorderLayout());
+        wrapperNotepad.setVisible(true);
+        wrapperNotepad.setPreferredSize(new Dimension(Constants.WIDTH_WINDOW, 30));
+        wrapperNotepad.setSize(new Dimension(Constants.WIDTH_WINDOW, 60));
+
+        statusTextLabel = new JLabel();
+        statusTextLabel.setBorder(new EmptyBorder(10, 10, 10, 20));
+        wrapperNotepad.add(statusTextLabel, BorderLayout.EAST);
+
+        languageSelectedLabel = new JLabel("Español");
+        languageSelectedLabel.setIcon(new ImageIcon(Constants.PATH_ES_ICON));
+        languageSelectedLabel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        wrapperNotepad.add(languageSelectedLabel, BorderLayout.WEST);
+
         fileChooser = new JFileChooser(new File(System.getProperty("user.dir")));
         fileChooser.setFileFilter(new FileNameExtensionFilter("txt", "txt"));
 
@@ -65,12 +81,17 @@ public class Window extends JFrame {
         findPanel = new FindPanel(controller);
         controller.setFindPanel(findPanel);
 
-        this.add(new JScrollPane(notepadPanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.WEST);
-        this.add(new JSeparator(SwingConstants.VERTICAL));
-        this.add(sideBarPanel, BorderLayout.EAST);
+        scrollPane = new JScrollPane(notepadPanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+        //this.add(new JSeparator(SwingConstants.VERTICAL));
         this.add(findPanel, BorderLayout.PAGE_START);
+        JPanel outerWrapper = new JPanel();
+        outerWrapper.setLayout(new BorderLayout());
+        outerWrapper.add(sideBarPanel, BorderLayout.EAST);
+        outerWrapper.add(scrollPane, BorderLayout.WEST);
+        this.add(outerWrapper, BorderLayout.CENTER);
         this.add(statusPane, BorderLayout.PAGE_END);
+        outerWrapper.add(wrapperNotepad, BorderLayout.NORTH);
         this.setJMenuBar(createMenuBar());
         this.setVisible(true);
         this.pack();
@@ -159,6 +180,11 @@ public class Window extends JFrame {
         return menuBar;
     }
 
+    public void setCaretPosition(int currentIndex) {
+        notepadPanel.setCaretPosition(currentIndex);
+        scrollPane.getVerticalScrollBar().setValue(currentIndex);
+    }
+
     //region Caret
     //This listens for and reports caret movements.
     protected class CaretListenerLabel extends JLabel
@@ -226,4 +252,17 @@ public class Window extends JFrame {
         return fileChooser;
     }
 
+    public static void setSelectedLanguageLabel(String language, ImageIcon icon){
+        languageSelectedLabel.setText(language);
+        languageSelectedLabel.setIcon(icon);
+    }
+
+    public static void updateStatusText(String text, ImageIcon icon){
+        statusTextLabel.setText(text);
+        statusTextLabel.setIcon(icon);
+    }
+
+    public void showStatusText(boolean visible){
+        statusTextLabel.setVisible(visible);
+    }
 }

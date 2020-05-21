@@ -6,6 +6,7 @@ import Domain.Word;
 import Utils.Constants;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -18,6 +19,7 @@ public class Sidebar extends JPanel {
     private DefaultListModel listModel;
     private ArrayList<Word> erroresArrayList;
     private JList<ArrayList> lista;
+    private static JLabel statusTextLabel;
     private int idx;
 
     public Sidebar(Controller controller) {
@@ -26,13 +28,11 @@ public class Sidebar extends JPanel {
         initComponents();
     }
 
-
     private void initComponents() {
         this.setVisible(true);
         this.setLayout(new BorderLayout());
         this.setSize(Constants.DIM_SIDEBAR);
         this.setPreferredSize(Constants.DIM_SIDEBAR);
-
         //Creación de la lista de ficheros
         listModel = new DefaultListModel();
         lista = new JList(listModel);
@@ -48,7 +48,6 @@ public class Sidebar extends JPanel {
 
         selectedFilesScrollPane.setSize(Constants.DIM_SIDEBAR);
         selectedFilesScrollPane.setPreferredSize(Constants.DIM_SIDEBAR);
-
         this.add(selectedFilesScrollPane);
     }
 
@@ -74,5 +73,6 @@ public class Sidebar extends JPanel {
         listModel.clear();
         this.repaint();
     }
+
 }
 
