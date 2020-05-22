@@ -5,11 +5,11 @@ import java.util.*;
 
 public class Constants {
 
-    public final static int WIDTH_WINDOW = 710;
+    public final static int WIDTH_WINDOW = 750;
     public final static int HEIGHT_WINDOW = 750;
-    public final static int WIDTH_SIDEBAR = (WIDTH_WINDOW) * 30 / 100;
+    public final static int WIDTH_SIDEBAR = (WIDTH_WINDOW) * 35 / 100;
     public final static int HEIGHT_SIDEBAR = HEIGHT_WINDOW;
-    public final static int WIDTH_NOTEPAD = (WIDTH_WINDOW) * 68 / 100;
+    public final static int WIDTH_NOTEPAD = (WIDTH_WINDOW) * 60 / 100;
     public final static int HEIGHT_NOTEPAD = HEIGHT_WINDOW;
 
     public final static int MAX_DISTANCE = 4;

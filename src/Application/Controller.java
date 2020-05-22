@@ -9,10 +9,7 @@ import Domain.Word;
 import Infrastructure.Soundex;
 import Infrastructure.SpellChecker;
 import Presentation.*;
-import Utils.Constants;
-import Utils.MultiMap;
-import Utils.Utils;
-
+import Utils.*;
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Highlighter;
@@ -300,12 +297,7 @@ public class Controller implements IController {
         }
         mispelledWords.remove(mispelledWordsCursorEnd.get(idx));
         mispelledWordsCursorEnd.remove(idx);
-        if (mispelledWords.size() == 0){
-            window.updateStatusText("No errors in text", new ImageIcon(Constants.PATH_CORRECT_ICON));
-
-        } else {
-            window.updateStatusText(mispelledWords.size() + " mispelled words in text", new ImageIcon(Constants.PATH_INCORRECT_ICON));
-        }
+        updateMispelledWordsCount();
     }
 
     @Override
@@ -503,5 +495,37 @@ public class Controller implements IController {
                 mispelledWordsCursorEnd.remove(idx);
             }
         }
+    }
+
+    public void setWordMispelledWord(Word mispelledWord, String correctedWord) {
+        String newWord = correctedWord.split(" ")[0];
+        int index = (int) getKeysByValue(mispelledWordsCursorEnd, mispelledWord).toArray()[0];
+        int wordStart = index -  mispelledWord.getEntry().length();
+        try {
+            notepad.getDocument().remove(wordStart, mispelledWord.getEntry().length());
+            notepad.getDocument().insertString(wordStart, newWord, null);
+            updateMispelledCursorEnds(index, newWord.length() - mispelledWord.getEntry().length());
+            mispelledWordsCursorEnd.remove(index);
+            mispelledWords.remove(mispelledWord);
+            updateMispelledWordsCount();
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateMispelledWordsCount(){
+        if (mispelledWords.size() == 0){
+            window.updateStatusText("No errors in text", new ImageIcon(Constants.PATH_CORRECT_ICON));
+
+        } else {
+            window.updateStatusText(mispelledWords.size() + " mispelled words in text", new ImageIcon(Constants.PATH_INCORRECT_ICON));
+        }
+    }
+    public static <T, E> Set<T> getKeysByValue(Map<T, E> map, E value) {
+        return map.entrySet()
+                .stream()
+                .filter(entry -> Objects.equals(entry.getValue(), value))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
     }
 }

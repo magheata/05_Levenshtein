@@ -1,10 +1,9 @@
 /* Created by andreea on 15/05/2020 */
-package Presentation;
+package Utils;
 
 import Application.Controller;
 import Domain.Interfaces.ISuggestionClient;
 import Domain.Word;
-import Utils.Constants;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;

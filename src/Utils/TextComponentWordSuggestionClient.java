@@ -1,5 +1,5 @@
 /* Created by andreea on 15/05/2020 */
-package Presentation;
+package Utils;
 
 import Domain.Interfaces.ISuggestionClient;
 import Domain.Word;

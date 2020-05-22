@@ -70,20 +70,11 @@ public class Window extends JFrame {
 
         sideBarPanel = new Sidebar(controller);
 
-        /*this.getContentPane().addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                super.componentResized(e);
-                controller.resizePanels(e.getComponent().getWidth(), e.getComponent().getHeight());
-            }
-        });*/
-
         findPanel = new FindPanel(controller);
         controller.setFindPanel(findPanel);
 
         scrollPane = new JScrollPane(notepadPanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-        //this.add(new JSeparator(SwingConstants.VERTICAL));
         this.add(findPanel, BorderLayout.PAGE_START);
         JPanel outerWrapper = new JPanel();
         outerWrapper.setLayout(new BorderLayout());
@@ -116,10 +107,6 @@ public class Window extends JFrame {
             System.exit(-1);
         }
         doc.addUndoableEditListener(new MenuBuilder.MyUndoableEditListener());
-    }
-
-    public void openFileChooser() {
-        fileChooser.showOpenDialog(this);
     }
 
     //region Model Manipulation

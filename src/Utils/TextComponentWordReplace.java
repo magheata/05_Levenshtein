@@ -1,5 +1,5 @@
 /* Created by andreea on 15/05/2020 */
-package Presentation;
+package Utils;
 
 import Application.Controller;
 import Domain.Interfaces.ISuggestionClient;
