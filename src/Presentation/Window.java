@@ -248,8 +248,4 @@ public class Window extends JFrame {
         statusTextLabel.setText(text);
         statusTextLabel.setIcon(icon);
     }
-
-    public void showStatusText(boolean visible){
-        statusTextLabel.setVisible(visible);
-    }
 }

@@ -138,15 +138,22 @@ public class Controller implements IController {
                 if (wordStart < 0) {
                     firstWord = true;
                 }
-                while (Constants.SYMBOLS.contains(correctedText.charAt(wordStart))){
-                    wordStart++;
+                if (!firstWord){
+                    while (Constants.SYMBOLS.contains(correctedText.charAt(wordStart))){
+                        wordStart++;
+                    }
                 }
+
                 String replaceWord = getFirstReplaceWord(mispelledWord);
                 if (replaceWord != null){
                     correctedText.delete(firstWord ? (wordStart + 1) : wordStart,
                             firstWord ? (wordStart + 1) + mispelledWord.getEntry().length() : wordStart + mispelledWord.getEntry().length());
                     for (int i = 0; i < replaceWord.length(); i++){
-                        correctedText.insert(wordStart + i, replaceWord.toCharArray()[i]);
+                        if (firstWord){
+                            correctedText.insert(wordStart + i + 1, replaceWord.toCharArray()[i]);
+                        } else {
+                            correctedText.insert(wordStart + i, replaceWord.toCharArray()[i]);
+                        }
                     }
                     mispelledWords.remove(mispelledWord);
                     difference = difference + (replaceWord.length() - mispelledWord.getEntry().length());
@@ -405,7 +412,10 @@ public class Controller implements IController {
     public static void resetNotepad(boolean isEditable) {
         notepad.setText("");
         notepad.setNotepadEditable(isEditable);
-        window.showStatusText(false);
+        window.updateStatusText("", null);
+        mispelledWordsCursorEnd.clear();
+        mispelledWords.clear();
+        window.resetModel();
     }
 
     public static void enableNotepad(boolean isEditable) {
@@ -462,6 +472,9 @@ public class Controller implements IController {
     public void replaceWord(int index, int length, String text) {
         try {
             int difference = text.length() - length;
+            if (difference != 0){
+                text = text.concat(" ");
+            }
             updateMispelledCursorEnds(index, difference);
             notepad.getDocument().remove(index, length);
             notepad.getDocument().insertString(index, text, null);
@@ -500,8 +513,16 @@ public class Controller implements IController {
     public void setWordMispelledWord(Word mispelledWord, String correctedWord) {
         String newWord = correctedWord.split(" ")[0];
         int index = (int) getKeysByValue(mispelledWordsCursorEnd, mispelledWord).toArray()[0];
-        int wordStart = index -  mispelledWord.getEntry().length();
         try {
+            int wordStart;
+            if ((index - (mispelledWord.getEntry().length()) > 0)){
+                wordStart = index - mispelledWord.getEntry().length();
+            } else {
+                wordStart = index - (mispelledWord.getEntry().length() - 1);
+            }
+            while (Constants.SYMBOLS.contains(notepad.getText().charAt(wordStart))){
+                wordStart++;
+            }
             notepad.getDocument().remove(wordStart, mispelledWord.getEntry().length());
             notepad.getDocument().insertString(wordStart, newWord, null);
             updateMispelledCursorEnds(index, newWord.length() - mispelledWord.getEntry().length());

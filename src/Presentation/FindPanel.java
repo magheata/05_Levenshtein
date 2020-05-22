@@ -119,6 +119,7 @@ public class FindPanel extends JPanel{
             button.getParent().getParent().setVisible(false);
             findTextPanel.setVisible(false);
             replaceTextPanel.setVisible(false);
+            controller.removeFindWordHighlights();
         });
         wrapper.add(findTextPanel, panelConstraints);
         wrapper.add(closeButton, closeButtonConstraints);
@@ -146,7 +147,8 @@ public class FindPanel extends JPanel{
 
         replaceAllButton.addActionListener(e -> {
             if (!findTextField.getText().isEmpty() && !findTextField.getText().isBlank() && !replaceTextField.getText().isEmpty() && !replaceTextField.getText().isBlank()){
-                for (int index : indexOcurrences){
+                ArrayList<Integer> indexOcurrencesAux = new ArrayList<>(indexOcurrences);
+                for (int index : indexOcurrencesAux){
                     controller.replaceWord(index, findTextField.getText().length(), replaceTextField.getText());
                     indexOcurrences.remove(index);
                     if (indexOcurrences.size() > 0){
@@ -178,7 +180,6 @@ public class FindPanel extends JPanel{
         replaceTextPanel.add(replaceTextField);
         replaceTextPanel.add(replaceButton);
         replaceTextPanel.add(replaceAllButton);
-
         return replaceTextPanel;
     }
 
