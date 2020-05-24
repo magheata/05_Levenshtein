@@ -537,6 +537,7 @@ public class Controller implements IController {
                 }
             }
             updateMispelledCursorEnds(index, difference);
+            notepad.getDocument().remove(index, length);
             notepad.getDocument().insertString(index, text, null);
             System.out.println(notepad.getText());
         } catch (BadLocationException e) {
