@@ -18,7 +18,7 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class SuggestionDropDownDecorator <C extends JComponent> {
+public class SuggestionsManager<C extends JComponent> {
     private final C invoker;
     private ISuggestionClient<C> client;
 
@@ -30,27 +30,27 @@ public class SuggestionDropDownDecorator <C extends JComponent> {
     private Controller controller;
 
 
-    public SuggestionDropDownDecorator(C invoker, ISuggestionClient<C> client, Controller controller) {
+    public SuggestionsManager(C invoker, ISuggestionClient<C> client, Controller controller) {
         this.invoker = invoker;
         this.controller = controller;
         this.client = client;
     }
 
 
-    public SuggestionDropDownDecorator(C invoker, ISuggestionClient<C> client) {
+    public SuggestionsManager(C invoker, ISuggestionClient<C> client) {
         this.invoker = invoker;
         this.client = client;
     }
 
     public static <C extends JComponent> void decorate(C component, ISuggestionClient<C> suggestionClient) {
-        SuggestionDropDownDecorator<C> d = new SuggestionDropDownDecorator<>(component, suggestionClient);
+        SuggestionsManager<C> d = new SuggestionsManager<>(component, suggestionClient);
         d.initSuggestionCompListener();
         d.initInvokerKeyListeners();
         d.initPopup();
     }
 
     public static <C extends JComponent> void decorate(C component, ISuggestionClient<C> suggestionClient, Controller controller) {
-        SuggestionDropDownDecorator<C> d = new SuggestionDropDownDecorator<>(component, suggestionClient, controller);
+        SuggestionsManager<C> d = new SuggestionsManager<>(component, suggestionClient, controller);
         d.initInvokerMouseListener();
         d.initInvokerKeyListeners();
         d.initPopup();

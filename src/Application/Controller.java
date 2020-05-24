@@ -10,6 +10,9 @@ import Domain.Language;
 import Domain.SoundexDictionary;
 import Domain.Word;
 import Infrastructure.*;
+import Infrastructure.SuggestionClients.WordSuggestionsClient;
+import Infrastructure.SuggestionsManager;
+import Infrastructure.SuggestionClients.WordReplacementsClient;
 import Presentation.FindPanel;
 import Presentation.Notepad;
 import Presentation.Sidebar;
@@ -683,8 +686,8 @@ public class Controller implements IController {
      */
     public void setNotepad(Notepad notepad) {
         this.notepad = notepad;
-        SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordSuggestionClient(Controller::getWords));
-        SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordReplace(Controller::getReplaceWords, this), this);
+        SuggestionsManager.decorate(notepad, new WordSuggestionsClient(Controller::getWords));
+        SuggestionsManager.decorate(notepad, new WordReplacementsClient(Controller::getReplaceWords, this), this);
     }
 
     public void setSidebar(Sidebar sidebar) {
