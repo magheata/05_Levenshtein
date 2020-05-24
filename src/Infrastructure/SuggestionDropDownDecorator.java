@@ -2,11 +2,12 @@
  * AUTHORS: Rafael Adrián Gil Cañestro
  * Miruna Andreea Gheata
  */
-package Utils;
+package Infrastructure;
 
 import Application.Controller;
 import Domain.Interfaces.ISuggestionClient;
 import Domain.Word;
+import Utils.Constants;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
