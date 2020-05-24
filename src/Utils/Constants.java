@@ -45,7 +45,6 @@ public class Constants {
     public final static String PATH_CLOSE_ICON = "src/Presentation/Images/close.png";
     public final static String PATH_CORRECT_ICON = "src/Presentation/Images/correct.png";
     public final static String PATH_INCORRECT_ICON = "src/Presentation/Images/alert.png";
-    public final static String PATH_EN_ICON = "src/Presentation/Images/english.png";
     public final static String PATH_ES_ICON = "src/Presentation/Images/español.png";
 
 
