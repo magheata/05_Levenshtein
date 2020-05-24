@@ -28,7 +28,7 @@ public class Window extends JFrame {
     private JScrollPane scrollPane;
     private static HashMap<Object, Action> actions;
     //undo helpers
-    static final int MAX_CHARACTERS = 300;
+    static final int MAX_CHARACTERS = Integer.MAX_VALUE;
     private static JLabel languageSelectedLabel, statusTextLabel;
 
     public Window(Controller controller) {
@@ -44,11 +44,7 @@ public class Window extends JFrame {
         this.setResizable(false);
         //Create the status area.
         JPanel statusPane = new JPanel(new GridLayout(1, 1));
-        CaretListenerLabel caretListenerLabel = new CaretListenerLabel("Caret Status");
-        statusPane.add(caretListenerLabel);
-
-        initNotepadPanel(caretListenerLabel);
-
+        initNotepadPanel();
         JPanel wrapperNotepad = new JPanel();
         wrapperNotepad.setLayout(new BorderLayout());
         wrapperNotepad.setVisible(true);
@@ -88,11 +84,10 @@ public class Window extends JFrame {
         this.pack();
     }
 
-    private void initNotepadPanel(CaretListenerLabel caretListenerLabel){
+    private void initNotepadPanel(){
         notepadPanel = new Notepad(controller);
         notepadPanel.setEditable(false);
         controller.setNotepad(notepadPanel);
-        notepadPanel.addCaretListener(caretListenerLabel);
         // Add undo/redo actions
         notepadPanel.getActionMap().put("UNDO_ACTION", new MenuBuilder.UndoAction());
         notepadPanel.getActionMap().put("REDO_ACTION", new MenuBuilder.RedoAction());
@@ -168,51 +163,8 @@ public class Window extends JFrame {
     }
 
     public void setCaretPosition(int currentIndex) {
-        notepadPanel.setCaretPosition(currentIndex);
         scrollPane.getVerticalScrollBar().setValue(currentIndex);
     }
-
-    //region Caret
-    //This listens for and reports caret movements.
-    protected class CaretListenerLabel extends JLabel
-            implements CaretListener {
-        public CaretListenerLabel(String label) {
-            super(label);
-        }
-
-        //Might not be invoked from the event dispatch thread.
-        public void caretUpdate(CaretEvent e) {
-            displaySelectionInfo(e.getDot(), e.getMark());
-        }
-
-        //This method can be invoked from any thread.  It
-        //invokes the setText and modelToView methods, which
-        //must run on the event dispatch thread. We use
-        //invokeLater to schedule the code for execution
-        //on the event dispatch thread.
-        protected void displaySelectionInfo(final int dot,
-                                            final int mark) {
-            SwingUtilities.invokeLater(() -> {
-                if (dot == mark) {  // no selection
-                    try {
-                        Rectangle caretCoords = notepadPanel.modelToView(dot);
-                        //Convert it to view coordinates.
-                        setText("caret: text position: " + dot
-                                + "\n");
-                    } catch (BadLocationException ble) {
-                        setText("caret: text position: " + dot + "\n");
-                    }
-                } else if (dot < mark) {
-                    setText("selection from: " + dot
-                            + " to " + mark + "\n");
-                } else {
-                    setText("selection from: " + mark
-                            + " to " + dot + "\n");
-                }
-            });
-        }
-    }
-    //endregion
 
     //region UndoManager
     //This one listens for edits that can be undone.

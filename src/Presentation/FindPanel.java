@@ -12,6 +12,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 public class FindPanel extends JPanel{
 
@@ -40,6 +42,8 @@ public class FindPanel extends JPanel{
         findTextPanel = new JPanel();
         findTextPanel.setVisible(false);
         findTextPanel.setBackground(new Color(127, 127, 127));
+        findTextPanel.setLayout(new GridBagLayout());
+
         JPanel wrapper = new JPanel();
         wrapper.setBackground(new Color(127, 127, 127));
         wrapper.setLayout(new GridBagLayout());
@@ -48,10 +52,10 @@ public class FindPanel extends JPanel{
         findTextField.setCaretColor(Color.white);
         findTextField.setBackground(new Color(89, 89, 89));
         findTextField.setForeground(Color.white);
-        findTextField.setBorder(new EmptyBorder(0, 0, 0, 0));
+        findTextField.setBorder(new EmptyBorder(0, 0, 0, 100));
         findTextField.setSize(new Dimension(300, 20));
         findTextField.setPreferredSize(new Dimension(300, 20));
-        findTextPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 2));
+        findTextPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 2));
 
         findTextField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -72,12 +76,14 @@ public class FindPanel extends JPanel{
         prevOcurrence = new JButton(new ImageIcon(Constants.PATH_UP_ARROW_ICON));
 
         prevOcurrence.addActionListener(e -> {
-            if (currentIndex > 1){
+            if (currentIndex > 0){
                 currentIndex--;
             } else {
                 currentIndex = indexOcurrences.size() - 1;
             }
-            controller.setCursorPosInNotepad(indexOcurrences.get(currentIndex));
+            if (indexOcurrences.size() > 0){
+                controller.setCursorPosInNotepad(indexOcurrences.get(currentIndex));
+            }
             ocurrencesLabel.setText((currentIndex + 1) + "/" + indexOcurrences.size());
         });
         nextOcurrence = new JButton(new ImageIcon(Constants.PATH_DOWN_ARROW_ICON));
@@ -87,29 +93,47 @@ public class FindPanel extends JPanel{
             } else {
                 currentIndex = 0;
             }
-            controller.setCursorPosInNotepad(indexOcurrences.get(currentIndex));
-            ocurrencesLabel.setText((currentIndex + 1) + "/" + indexOcurrences.size());
+            if (indexOcurrences.size() > 0){
+                controller.setCursorPosInNotepad(indexOcurrences.get(currentIndex));
+            }            ocurrencesLabel.setText((currentIndex + 1) + "/" + indexOcurrences.size());
         });
         closeButton = new JButton(new ImageIcon(Constants.PATH_CLOSE_ICON));
         ocurrencesLabel = new JLabel();
+        ocurrencesLabel.setText("      ");
         setButtonTransparent(prevOcurrence);
         setButtonTransparent(nextOcurrence);
+
+
+        GridBagConstraints findTextConstraints = new GridBagConstraints();
+        findTextConstraints.fill = GridBagConstraints.HORIZONTAL;
+        findTextConstraints.gridx = 0;
+        findTextConstraints.gridy = 0;
+        findTextConstraints.gridwidth = 1;
+        findTextConstraints.anchor = GridBagConstraints.LINE_START;
+
+        GridBagConstraints ocurrencesConstraints = new GridBagConstraints();
+        ocurrencesConstraints.fill = GridBagConstraints.HORIZONTAL;
+        ocurrencesConstraints.gridx = 1;
+        ocurrencesConstraints.gridy = 0;
+        ocurrencesConstraints.gridwidth = 1;
+        ocurrencesConstraints.insets = new Insets(0, 300, 0, 0);
 
         GridBagConstraints panelConstraints = new GridBagConstraints();
         panelConstraints.fill = GridBagConstraints.HORIZONTAL;
         panelConstraints.gridx = 0;
         panelConstraints.gridy = 0;
         panelConstraints.gridwidth = 2;
+        panelConstraints.anchor = GridBagConstraints.LINE_START;
 
         GridBagConstraints closeButtonConstraints = new GridBagConstraints();
         closeButtonConstraints.fill = GridBagConstraints.HORIZONTAL;
         closeButtonConstraints.gridx = 2;
         closeButtonConstraints.gridy = 0;
         closeButtonConstraints.gridwidth = 1;
-        closeButtonConstraints.insets = new Insets(0, 181, 0, 0);
+        closeButtonConstraints.insets = new Insets(0, 300, 0, 0);
 
-        findTextPanel.add(findTextField);
-        findTextPanel.add(ocurrencesLabel);
+        findTextPanel.add(findTextField, findTextConstraints);
+        findTextPanel.add(ocurrencesLabel, ocurrencesConstraints);
         findTextPanel.add(prevOcurrence);
         findTextPanel.add(nextOcurrence);
         setButtonTransparent(closeButton);
@@ -147,18 +171,14 @@ public class FindPanel extends JPanel{
 
         replaceAllButton.addActionListener(e -> {
             if (!findTextField.getText().isEmpty() && !findTextField.getText().isBlank() && !replaceTextField.getText().isEmpty() && !replaceTextField.getText().isBlank()){
-                ArrayList<Integer> indexOcurrencesAux = new ArrayList<>(indexOcurrences);
-                for (int index : indexOcurrencesAux){
-                    controller.replaceWord(index, findTextField.getText().length(), replaceTextField.getText());
-                    indexOcurrences.remove(index);
-                    if (indexOcurrences.size() > 0){
-                        ocurrencesLabel.setText((currentIndex + 1) + "/" + indexOcurrences.size());
-                    } else {
-                        replaceTextField.setText("");
-                        findTextField.setText("");
-                        ocurrencesLabel.setText("");
-                    }
+                controller.replaceWords(findTextField.getText(), replaceTextField.getText());
+                for (int idx : indexOcurrences){
+                    controller.updateMispelledCursorEnds(idx, replaceTextField.getText().length() - findTextField.getText().length());
                 }
+                replaceTextField.setText("");
+                findTextField.setText("");
+                ocurrencesLabel.setText("      ");
+                indexOcurrences.clear();
                 controller.checkText();
             }
         });
@@ -172,7 +192,7 @@ public class FindPanel extends JPanel{
                 } else {
                     replaceTextField.setText("");
                     findTextField.setText("");
-                    ocurrencesLabel.setText("");
+                    ocurrencesLabel.setText("      ");
                 }
                 controller.checkText();
             }
@@ -211,7 +231,7 @@ public class FindPanel extends JPanel{
             controller.setCursorPosInNotepad(currentIndex);
         } else {
             controller.removeFindWordHighlights();
-            ocurrencesLabel.setText("");
+            ocurrencesLabel.setText("      ");
             indexOcurrences.clear();
             currentIndex = 0;
         }

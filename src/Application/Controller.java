@@ -13,6 +13,7 @@ import Utils.*;
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Highlighter;
+import javax.swing.text.Utilities;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -41,8 +42,22 @@ public class Controller implements IController {
     private static ExecutorService executor = Executors.newSingleThreadExecutor();
     private Highlighter.Highlight[] highlights;
     private static int distance = 1;
+
+    public static boolean isSuggestionsEnabled() {
+        return suggestionsEnabled;
+    }
+
     private static boolean suggestionsEnabled = false;
 
+    public static boolean isSuggestionUsed() {
+        return suggestionUsed;
+    }
+
+    public static void setSuggestionUsed(boolean suggestionUsed) {
+        Controller.suggestionUsed = suggestionUsed;
+    }
+
+    private static boolean suggestionUsed = false;
     public Controller() {
         initApplication();
         reader = new Reader();
@@ -123,6 +138,7 @@ public class Controller implements IController {
                     }
                 }
             }
+            updateMispelledWordsCount();
         });
     }
 
@@ -272,6 +288,7 @@ public class Controller implements IController {
             if (!duplicate) {
                 mispelledWords.add(word);
                 addToModel(word);
+                updateMispelledCursorEnds(word.getPos(), word.getEntry().length());
             }
         } else {
             mispelledWords.add(word);
@@ -469,20 +486,65 @@ public class Controller implements IController {
         SwingUtilities.invokeLater(() -> window.setCaretPosition(currentIndex));
     }
 
-    public void replaceWord(int index, int length, String text) {
-        try {
-            int difference = text.length() - length;
-            if (difference != 0){
-                text = text.concat(" ");
+    public void deleteWordsFromPanel(ArrayList<Integer> indexes, int length){
+        Collections.reverse(indexes);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < length; i++){
+            sb.append(" ");
+        }
+        for (int index : indexes){
+            try {
+                notepad.getDocument().remove(index, length);
+                notepad.getDocument().insertString(index, sb.toString(), null);
+                String text = notepad.getText();
+                System.out.println(text);
+            } catch (BadLocationException e) {
             }
-            updateMispelledCursorEnds(index, difference);
-            notepad.getDocument().remove(index, length);
-            notepad.getDocument().insertString(index, text, null);
-        } catch (BadLocationException e) {
         }
     }
 
-    private void updateMispelledCursorEnds(int idx, int lengthDifference) {
+    public void trimText(int start, int end){
+        try {
+
+            int nextWordIndex = end;
+            while ((nextWordIndex < notepad.getText().length()) && (Constants.SYMBOLS.contains(notepad.getText().charAt(nextWordIndex)))){
+                notepad.getDocument().remove(nextWordIndex - 1, 1);
+                nextWordIndex++;
+            }
+            String text = notepad.getText(start, end - start);
+            text = text.trim();
+            notepad.getDocument().remove(start, end - start);
+            notepad.getDocument().insertString(start, text, null);
+            notepad.setCaretPosition(end);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void replaceWords(String old, String newWord){
+        notepad.setText(notepad.getText().replace(old, newWord));
+    }
+    public int replaceWord(int index, int length, String text) {
+        int difference = -9999;
+        try {
+            difference = text.length() - length;
+            if (Math.abs(difference) != 0){
+                text = text.concat(" ");
+                if (difference < 0){
+                    difference--;
+                } else {
+                    difference++;
+                }
+            }
+            updateMispelledCursorEnds(index, difference);
+            notepad.getDocument().insertString(index, text, null);
+            System.out.println(notepad.getText());
+        } catch (BadLocationException e) {
+        }
+        return difference;
+    }
+
+    public static void updateMispelledCursorEnds(int idx, int lengthDifference) {
         HashMap<Integer, Word> mispelledWordsCursorEndAux = new HashMap<>(mispelledWordsCursorEnd);
         Set<Integer> cursorEnds = mispelledWordsCursorEnd.keySet();
         if (Math.abs(lengthDifference) != 0) {
@@ -500,7 +562,7 @@ public class Controller implements IController {
         }
     }
 
-    public void removeMispelledWordsBetweenSelection(int selectionStart, int selectionEnd) {
+    public static void removeMispelledWordsBetweenSelection(int selectionStart, int selectionEnd) {
         for (int idx : mispelledWordsCursorEnd.keySet()){
             if ((selectionStart <= idx)  && (idx <= selectionEnd)){
                 removeFromModel(mispelledWordsCursorEnd.get(idx));
@@ -534,7 +596,7 @@ public class Controller implements IController {
         }
     }
 
-    private void updateMispelledWordsCount(){
+    private static void updateMispelledWordsCount(){
         if (mispelledWords.size() == 0){
             window.updateStatusText("No errors in text", new ImageIcon(Constants.PATH_CORRECT_ICON));
 
@@ -542,6 +604,7 @@ public class Controller implements IController {
             window.updateStatusText(mispelledWords.size() + " mispelled words in text", new ImageIcon(Constants.PATH_INCORRECT_ICON));
         }
     }
+
     public static <T, E> Set<T> getKeysByValue(Map<T, E> map, E value) {
         return map.entrySet()
                 .stream()

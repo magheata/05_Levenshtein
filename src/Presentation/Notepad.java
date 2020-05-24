@@ -9,7 +9,10 @@ import Utils.UnderlineHighlightPainter;
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -143,6 +146,7 @@ public class Notepad extends JTextPane {
                     removeUnderlineForWord((int) keys[idx] - 1, word.getEntry().length());
                 }
             }
+            controller.checkText();
         } else {
             boolean checkWord = false;
             KeyStroke eventKeystroke = KeyStroke.getKeyStrokeForEvent(e);
@@ -184,15 +188,17 @@ public class Notepad extends JTextPane {
                             try {
                                 writtenWord.setPos(startCursor - 1);
                                 writtenWord.setLine(getCurrentRow(startCursor));
-                                controller.addMispelledWord(writtenWord);
-                                if (!containsHighlight(auxIdx, auxIdx + word.length())) {
-                                    highlighter.addHighlight(auxIdx == 0 ? auxIdx : (auxIdx + 1), (auxIdx == 0 ? auxIdx : (auxIdx + 1)) + word.length(), painterUnderline);
-                                    highlights = new ArrayList<>(Arrays.asList(highlighter.getHighlights()));
+                                if (!controller.isSuggestionUsed()){
+                                    controller.addMispelledWord(writtenWord);
+                                    if (!containsHighlight(auxIdx, auxIdx + word.length())) {
+                                        highlighter.addHighlight(auxIdx == 0 ? auxIdx : (auxIdx + 1), (auxIdx == 0 ? auxIdx : (auxIdx + 1)) + word.length(), painterUnderline);
+                                        highlights = new ArrayList<>(Arrays.asList(highlighter.getHighlights()));
+                                    }
                                 }
                             } catch (BadLocationException badLocationException) {
-
                             }
                         }
+
                         charactersInWord.clear();
                     }
                 }

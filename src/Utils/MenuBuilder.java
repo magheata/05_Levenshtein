@@ -2,12 +2,10 @@
 package Utils;
 
 import Application.Controller;
-import Presentation.Window;
 
 import javax.swing.*;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
-import javax.swing.text.DefaultEditorKit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
@@ -33,7 +31,6 @@ public class MenuBuilder {
     public final static ArrayList<String> IS_SUBMENU = new ArrayList<>(Arrays.asList(Constants.TEXT_LANGUAGE_SUBMENU));
 
     public final static ArrayList<String> ADD_SEPARATION_AFTER = new ArrayList<>(Arrays.asList(
-            Constants.TEXT_REDO_ITEM,
             Constants.TEXT_NEW_FROM_EXISTING_ITEM,
             Constants.TEXT_SPELLING_ITEM
     ));
@@ -51,15 +48,11 @@ public class MenuBuilder {
                 {
                     add(Constants.TEXT_UNDO_ITEM);
                     add(Constants.TEXT_REDO_ITEM);
-                    add(Constants.TEXT_CUT_ITEM);
-                    add(Constants.TEXT_COPY_ITEM);
-                    add(Constants.TEXT_PASTE_ITEM);
                 }
             }
             ),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_VIEW_MENU, new ArrayList<>() {
                 {
-                    add(Constants.TEXT_HIDE_CARET_ITEM);
                     add(Constants.TEXT_HIDE_PANEL_ITEM);
                 }
             }
@@ -92,9 +85,6 @@ public class MenuBuilder {
     public final static Map<String, String> KEYSTROKES = Map.ofEntries(
             new AbstractMap.SimpleEntry<>(Constants.TEXT_UNDO_ITEM, Constants.KEYSTROKE_UNDO),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_REDO_ITEM, Constants.KEYSTROKE_REDO),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_CUT_ITEM, Constants.KEYSTROKE_CUT),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_COPY_ITEM, Constants.KEYSTROKE_COPY),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_PASTE_ITEM, Constants.KEYSTROKE_PASTE),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_NEW_FILE_ITEM, Constants.KEYSTROKE_NEW_FILE),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_OPEN_FILE_ITEM, Constants.KEYSTROKE_OPEN_EXISTING_FILE),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_ENABLE_SUGGESTIONS_ITEM, Constants.KEYSTROKE_SUGGESTIONS),
@@ -102,9 +92,7 @@ public class MenuBuilder {
             new AbstractMap.SimpleEntry<>(Constants.TEXT_SPELLING_ITEM, Constants.KEYSTROKE_SPELLING),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_FIND_WORD_ITEM, Constants.KEYSTROKE_FIND),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_HIDE_PANEL_ITEM, Constants.KEYSTROKE_MISPELLED_PANEL),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_HIDE_CARET_ITEM, Constants.KEYSTROKE_CARET),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_SHOW_PANEL_ITEM, Constants.KEYSTROKE_MISPELLED_PANEL),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_SHOW_CARET_ITEM, Constants.KEYSTROKE_CARET),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_ENABLE_EDIT_ITEM, Constants.KEYSTROKE_EDIT),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_DISABLE_EDIT_ITEM, Constants.KEYSTROKE_EDIT)
     );
@@ -112,9 +100,6 @@ public class MenuBuilder {
     public final static Map<String, String> MENU_ICONS = Map.ofEntries(
             new AbstractMap.SimpleEntry<>(Constants.TEXT_UNDO_ITEM, Constants.PATH_UNDO_ICON),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_REDO_ITEM, Constants.PATH_REDO_ICON),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_CUT_ITEM, Constants.PATH_CUT_ICON),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_COPY_ITEM, Constants.PATH_COPY_ICON),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_PASTE_ITEM, Constants.PATH_PASTE_ICON),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_NEW_FILE_ITEM, Constants.PATH_NEW_FILE_ICON),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_NEW_FROM_EXISTING_ITEM, Constants.PATH_NEW_FROM_EXISTING_FILE_ICON),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_OPEN_FILE_ITEM, Constants.PATH_OPEN_FILE_ICON),
@@ -126,9 +111,7 @@ public class MenuBuilder {
             new AbstractMap.SimpleEntry<>(Constants.TEXT_FIND_WORD_ITEM, Constants.PATH_FIND_ICON),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_FIND_REPLACE_WORD_ITEM, Constants.PATH_FIND_REPLACE_ICON),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_HIDE_PANEL_ITEM, Constants.PATH_PANEL_ICON),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_HIDE_CARET_ITEM, Constants.PATH_CARET_ICON),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_SHOW_PANEL_ITEM, Constants.PATH_PANEL_ICON),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_SHOW_CARET_ITEM, Constants.PATH_CARET_ICON)
+            new AbstractMap.SimpleEntry<>(Constants.TEXT_SHOW_PANEL_ITEM, Constants.PATH_PANEL_ICON)
     );
 
     public final static Map<String, JMenuItem> MENU_ITEMS = new HashMap<>();
@@ -137,18 +120,6 @@ public class MenuBuilder {
     public final static Map<String, ActionListener> MENU_ACTIONLISTENERS = Map.ofEntries(
             new AbstractMap.SimpleEntry<>(Constants.TEXT_UNDO_ITEM, undoAction),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_REDO_ITEM, redoAction),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_CUT_ITEM, e -> {
-                Window.getActionByName(DefaultEditorKit.cutAction);
-                Controller.checkText();
-            }),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_COPY_ITEM, e -> {
-                Window.getActionByName(DefaultEditorKit.copyAction);
-                Controller.checkText();
-            }),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_PASTE_ITEM, e -> {
-                Window.getActionByName(DefaultEditorKit.pasteAction);
-                Controller.checkText();
-            }),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_NEW_FILE_ITEM, e -> Controller.resetNotepad(true)),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_NEW_FROM_EXISTING_ITEM, e -> Controller.openFileChooser(true)),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_OPEN_FILE_ITEM, e -> Controller.openFileChooser(false)),
@@ -193,12 +164,6 @@ public class MenuBuilder {
                     }
                 }
             }),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_HIDE_CARET_ITEM, new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
-                }
-            }),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_SHOW_PANEL_ITEM, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -209,12 +174,6 @@ public class MenuBuilder {
                         MENU_ITEMS.get(Constants.TEXT_SHOW_PANEL_ITEM).setText(Constants.TEXT_SHOW_PANEL_ITEM);
                         Controller.enableSidebarPanel(false);
                     }
-                }
-            }),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_SHOW_CARET_ITEM, new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
                 }
             }),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_ENABLE_EDIT_ITEM, e -> {
@@ -242,9 +201,6 @@ public class MenuBuilder {
     public final static Map<String, Integer> KEYEVENTS = Map.ofEntries(
             new AbstractMap.SimpleEntry<>(Constants.KEYSTROKE_UNDO, KeyEvent.VK_Z),
             new AbstractMap.SimpleEntry<>(Constants.KEYSTROKE_REDO, KeyEvent.VK_Y),
-            new AbstractMap.SimpleEntry<>(Constants.KEYSTROKE_CUT, KeyEvent.VK_X),
-            new AbstractMap.SimpleEntry<>(Constants.KEYSTROKE_COPY, KeyEvent.VK_C),
-            new AbstractMap.SimpleEntry<>(Constants.KEYSTROKE_PASTE, KeyEvent.VK_P),
             new AbstractMap.SimpleEntry<>(Constants.KEYSTROKE_NEW_FILE, KeyEvent.VK_N),
             new AbstractMap.SimpleEntry<>(Constants.KEYSTROKE_OPEN_EXISTING_FILE, KeyEvent.VK_O),
             new AbstractMap.SimpleEntry<>(Constants.KEYSTROKE_SUGGESTIONS, KeyEvent.VK_S),

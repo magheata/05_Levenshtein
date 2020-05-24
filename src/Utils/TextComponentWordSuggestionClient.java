@@ -1,6 +1,7 @@
 /* Created by andreea on 15/05/2020 */
 package Utils;
 
+import Application.Controller;
 import Domain.Interfaces.ISuggestionClient;
 import Domain.Word;
 
@@ -44,6 +45,7 @@ public class TextComponentWordSuggestionClient implements ISuggestionClient<JTex
                 } else {
                     tp.getDocument().insertString(cp, selectedValue, null);
                 }
+                Controller.setSuggestionUsed(true);
             }
         } catch (BadLocationException e) {
         }
