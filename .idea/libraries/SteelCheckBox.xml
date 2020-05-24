@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="SteelCheckBox">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/SteelCheckBox.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

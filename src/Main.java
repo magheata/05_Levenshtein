@@ -1,16 +1,16 @@
-/* Created by andreea on 05/05/2020 */
+/**
+ * AUTHORS: Rafael Adrián Gil Cañestro
+ * Miruna Andreea Gheata
+ */
 
 import Application.Controller;
+import Presentation.Window;
 import Utils.Constants;
-
-import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
-        //Window w = new Window();
         Controller controller = new Controller();
+        controller.setWindow(new Window(controller));
         controller.importDicctionary(Constants.PATH_DICC_ES);
-        ArrayList<String> replaceWords = controller.getReplaceWords();
-        controller.checkText();
     }
 }
