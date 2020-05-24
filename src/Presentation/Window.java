@@ -1,4 +1,7 @@
-/* Created by andreea on 05/05/2020 */
+/**
+ * AUTHORS: Rafael Adrián Gil Cañestro
+ * Miruna Andreea Gheata
+ */
 package Presentation;
 
 import Application.Controller;
@@ -10,8 +13,6 @@ import Utils.MenuBuilder;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.*;
 import java.awt.*;
@@ -27,7 +28,6 @@ public class Window extends JFrame {
     private JFileChooser fileChooser;
     private JScrollPane scrollPane;
     private static HashMap<Object, Action> actions;
-    //undo helpers
     static final int MAX_CHARACTERS = Integer.MAX_VALUE;
     private static JLabel languageSelectedLabel, statusTextLabel;
 
@@ -45,6 +45,7 @@ public class Window extends JFrame {
         //Create the status area.
         JPanel statusPane = new JPanel(new GridLayout(1, 1));
         initNotepadPanel();
+
         JPanel wrapperNotepad = new JPanel();
         wrapperNotepad.setLayout(new BorderLayout());
         wrapperNotepad.setVisible(true);
@@ -71,14 +72,15 @@ public class Window extends JFrame {
 
         scrollPane = new JScrollPane(notepadPanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-        this.add(findPanel, BorderLayout.PAGE_START);
         JPanel outerWrapper = new JPanel();
         outerWrapper.setLayout(new BorderLayout());
         outerWrapper.add(sideBarPanel, BorderLayout.EAST);
         outerWrapper.add(scrollPane, BorderLayout.WEST);
+        outerWrapper.add(wrapperNotepad, BorderLayout.NORTH);
+
+        this.add(findPanel, BorderLayout.PAGE_START);
         this.add(outerWrapper, BorderLayout.CENTER);
         this.add(statusPane, BorderLayout.PAGE_END);
-        outerWrapper.add(wrapperNotepad, BorderLayout.NORTH);
         this.setJMenuBar(createMenuBar());
         this.setVisible(true);
         this.pack();
@@ -88,7 +90,7 @@ public class Window extends JFrame {
         notepadPanel = new Notepad(controller);
         notepadPanel.setEditable(false);
         controller.setNotepad(notepadPanel);
-        // Add undo/redo actions
+        // We add the undo and redo listeners
         notepadPanel.getActionMap().put("UNDO_ACTION", new MenuBuilder.UndoAction());
         notepadPanel.getActionMap().put("REDO_ACTION", new MenuBuilder.RedoAction());
         createActionTable(notepadPanel);
@@ -101,28 +103,34 @@ public class Window extends JFrame {
             System.err.println("Text pane's document isn't an AbstractDocument!");
             System.exit(-1);
         }
+        // Listener for when the Notepad is written on and modified
         doc.addUndoableEditListener(new MenuBuilder.MyUndoableEditListener());
     }
 
     //region Model Manipulation
-    public void addToModel(Word w){
-        sideBarPanel.addToModel(w);
+    public void addToSidebar(Word w){
+        sideBarPanel.addToSidebar(w);
     }
 
-    public void resetModel(){
+    public void resetSidebar(){
         sideBarPanel.resetModel();
     }
 
-    public void removeFromModel(Word word){
-        sideBarPanel.removeFromModel(word);
+    public void removeFromSidebar(Word word){
+        sideBarPanel.removeFromSidebar(word);
     }
     //endregion
 
+    /**
+     * Methos used to create the Menu
+     * @return
+     */
     private JMenuBar createMenuBar(){
         JMenuBar menuBar = new JMenuBar();
         for (String menu : MenuBuilder.MENU_ITEMS_ORDER){
             JMenu newMenu = new JMenu(menu);
             for (String item : MenuBuilder.MAP_MENU_ITEMS.get(menu)){
+                // If it's a submenu it's the Languages menu so we add the languages
                 if (MenuBuilder.IS_SUBMENU.contains(item)){
                     JMenu subMenuItem = new JMenu(item);
                     for (String subItem : MenuBuilder.MAP_MENU_ITEMS.get(item)){
@@ -148,7 +156,6 @@ public class Window extends JFrame {
                     menuItem.setIcon(new ImageIcon(MenuBuilder.MENU_ICONS.get(item)));
                     MenuBuilder.MENU_ITEMS.put(item, menuItem);
                     menuItem.addActionListener(MenuBuilder.MENU_ACTIONLISTENERS.get(item));
-
                     newMenu.add(menuItem);
                 }
                 if (MenuBuilder.ADD_SEPARATION_AFTER.contains(item)){
@@ -167,10 +174,6 @@ public class Window extends JFrame {
     }
 
     //region UndoManager
-    //This one listens for edits that can be undone.
-
-    //The following two methods allow us to find an
-    //action provided by the editor kit by its name.
     private void createActionTable(JTextComponent textComponent) {
          actions = new HashMap<>();
         Action[] actionsArray = textComponent.getActions();
@@ -179,11 +182,6 @@ public class Window extends JFrame {
             actions.put(a.getValue(Action.NAME), a);
         }
     }
-
-    public static Action getActionByName(String name) {
-        return actions.get(name);
-    }
-
     //endregion
 
     //Add a couple of emacs key bindings for navigation.

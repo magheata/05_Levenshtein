@@ -9,20 +9,21 @@ import java.util.Collection;
 
 public class SoundexDictionary extends Dictionary {
 
-    public MultiMap<String, String> dict = new MultiMap<>();
+    private MultiMap<String, String> dict;
 
     public SoundexDictionary(String type, ArrayList<String> entries) {
         super(type, entries);
         populateDict();
     }
 
-    public void populateDict() {
+    private void populateDict() {
+        dict = new MultiMap<String, String>();
         for (Word word : entries) {
             dict.put(Soundex.soundex(word.getEntry()), word.getEntry());
         }
     }
 
-    public Collection<String> getHomophones(String word) {
-        return dict.get(word);
+    public MultiMap<String, String> getDict() {
+        return dict;
     }
 }

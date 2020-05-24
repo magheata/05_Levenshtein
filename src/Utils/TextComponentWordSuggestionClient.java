@@ -1,5 +1,7 @@
-/* Created by andreea on 15/05/2020 */
-package Utils;
+/**
+ * AUTHORS: Rafael Adrián Gil Cañestro
+ * Miruna Andreea Gheata
+ */package Utils;
 
 import Application.Controller;
 import Domain.Interfaces.ISuggestionClient;

@@ -1,4 +1,7 @@
-/* Created by andreea on 07/05/2020 */
+/**
+ * AUTHORS: Rafael Adrián Gil Cañestro
+ * Miruna Andreea Gheata
+ */
 package Utils;
 
 import java.util.*;

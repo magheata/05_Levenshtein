@@ -1,8 +1,20 @@
-/* Created by andreea on 05/05/2020 */
+/**
+ * AUTHORS: Rafael Adrián Gil Cañestro
+ * Miruna Andreea Gheata
+ */
 package Infrastructure;
 
+/**
+ * Class used to check the spelling of words
+ */
 public class SpellChecker {
 
+    /**
+     * Method that compares two strings and returns the Levenshtein distance bewteen them
+     * @param a first string
+     * @param b second string
+     * @return distance bewteen them
+     */
     public int levenshtein(String a, String b) {
         a = a.toLowerCase();
         b = b.toLowerCase();

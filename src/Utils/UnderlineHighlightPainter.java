@@ -1,5 +1,7 @@
-/* Created by andreea on 08/05/2020 */
-package Utils;
+/**
+ * AUTHORS: Rafael Adrián Gil Cañestro
+ * Miruna Andreea Gheata
+ */package Utils;
 
 import javax.swing.text.*;
 import java.awt.*;

@@ -1,4 +1,7 @@
-/* Created by andreea on 19/05/2020 */
+/**
+ * AUTHORS: Rafael Adrián Gil Cañestro
+ * Miruna Andreea Gheata
+ */
 package Utils;
 
 import Application.Controller;

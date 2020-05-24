@@ -1,10 +1,12 @@
-/* Created by andreea on 15/05/2020 */
+/**
+ * AUTHORS: Rafael Adrián Gil Cañestro
+ * Miruna Andreea Gheata
+ */
 package Utils;
 
 import Application.Controller;
 import Domain.Interfaces.ISuggestionClient;
 import Domain.Word;
-import Utils.Constants;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;

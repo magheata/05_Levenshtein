@@ -1,41 +1,42 @@
-/* Created by andreea on 05/05/2020 */
+/**
+ * AUTHORS: Rafael Adrián Gil Cañestro
+ * Miruna Andreea Gheata
+ */
 package Domain;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Class that represents a Word
+ */
 public class Word {
+
     private int distance;
     private String entry;
     private boolean mispelled;
-
-    public void setLine(int line) {
-        this.line = line;
-    }
-
-    public void setPos(int pos) {
-        this.pos = pos;
-    }
-
-    public int getLine() {
-        return line;
-    }
-
-    public int getPos() {
-        return pos;
-    }
-
     private int line;
     private int pos;
     private boolean soundexWord;
     private HashMap<Integer, ArrayList<Word>> replaceWords = new HashMap<>();
 
+    /**
+     * Constructor used for replacement words
+     * @param distance levenshtein distance between the original word and this word (the replacement)
+     * @param entry string representing the word
+     * @param soundexWord wether or not it is an English type of dicctionary
+     */
     public Word(int distance, String entry, boolean soundexWord) {
         this.distance = distance;
         this.entry = entry;
         this.soundexWord = soundexWord;
     }
 
+    /**
+     * Constructor used for normal words
+     * @param entry
+     * @param soundexWord
+     */
     public Word(String entry, boolean soundexWord) {
         this.entry = entry;
         this.soundexWord = soundexWord;
@@ -45,8 +46,13 @@ public class Word {
         return entry;
     }
 
+    /**
+     * Returns the replacements words that are at a distance equal to the provided one
+     * @param distance levenshtein distance wanted
+     * @return list of Word elements
+     */
     public ArrayList<Word> getReplaceWords(int distance) {
-        if (!replaceWords.containsKey(distance)){
+        if (!replaceWords.containsKey(distance)) {
             return null;
         }
         return replaceWords.get(distance);
@@ -68,24 +74,23 @@ public class Word {
         replaceWords.get(replaceWord.distance).add(replaceWord);
     }
 
-    public boolean isMispelled() {
-        return mispelled;
-    }
-
     public void setMispelled(boolean mispelled) {
         this.mispelled = mispelled;
     }
 
-    public boolean isSameWord(Word word){
+    public boolean isSameWord(Word word) {
         return (this.line == word.line) && (this.pos == word.pos);
     }
 
-    @Override
-    public String toString() {
-        return "Word{" +
-                "pos=" + pos +
-                ", entry='" + entry + '\'' +
-                ", soundexWord=" + soundexWord +
-                "}\n";
+    public void setLine(int line) {
+        this.line = line;
+    }
+
+    public void setPos(int pos) {
+        this.pos = pos;
+    }
+
+    public int getPos() {
+        return pos;
     }
 }

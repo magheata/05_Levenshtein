@@ -1,8 +1,19 @@
-/* Created by andreea on 07/05/2020 */
+/**
+ * AUTHORS: Rafael Adrián Gil Cañestro
+ * Miruna Andreea Gheata
+ */
 package Infrastructure;
 
+/**
+ * Class used to define the Soundex words
+ */
 public class Soundex {
 
+    /**
+     * Method used to convert a word to its soundex equivalent
+     * @param s string to convert
+     * @return soundex equivalent
+     */
     public static String soundex(String s) {
         char[] x = s.toUpperCase().toCharArray();
         // retain first letter
