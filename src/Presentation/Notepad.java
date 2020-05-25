@@ -222,7 +222,7 @@ public class Notepad extends JTextPane {
     public void removeFindWordHighlights(){
         Highlighter.Highlight [] highlights = highlighter.getHighlights();
         for (Highlighter.Highlight h : highlights){
-            if (h.getPainter() instanceof LayeredHighlighter.LayerPainter){
+            if (h.getPainter() instanceof DefaultHighlighter.DefaultHighlightPainter){
                 highlighter.removeHighlight(h);
             }
         }

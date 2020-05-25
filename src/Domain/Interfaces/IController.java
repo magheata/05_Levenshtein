@@ -38,4 +38,6 @@ public interface IController {
     void replaceWords(String old, String newWord);
 
     void setSelectedLanguage(Language selectedLanguage);
+
+    void updateMispelledCursorEnds(int idx, int lengthDifference);
 }

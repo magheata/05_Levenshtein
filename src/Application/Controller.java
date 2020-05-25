@@ -40,26 +40,26 @@ import static Utils.Utils.getKeysByValue;
 public class Controller implements IController {
 
     private Utils utils;
-    private static SoundexDictionary soundex;
+    private SoundexDictionary soundex;
 
-    private static Reader reader;
-    private static SpellChecker spellChecker;
-    private static FindPanel findPanel;
-    private static Window window;
-    private static Notepad notepad;
-    private static Sidebar sidebar;
+    private Reader reader;
+    private SpellChecker spellChecker;
+    private FindPanel findPanel;
+    private Window window;
+    private Notepad notepad;
+    private Sidebar sidebar;
     private static Dictionary dictionary;
 
     private static ArrayList<Word> mispelledWords = new ArrayList<>();
-    private static boolean isSoundexDictionary;
-    private static ExecutorService executor = Executors.newSingleThreadExecutor();
+    private boolean isSoundexDictionary;
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
     private static int distance = 1;
     private static boolean suggestionsEnabled = false;
-    private static boolean suggestionUsed = false;
+    private boolean suggestionUsed = false;
 
     private boolean dictPopulated = false;
 
-    private static HashMap<Integer, Word> mispelledWordsCursorEnd = new HashMap<>();
+    private HashMap<Integer, Word> mispelledWordsCursorEnd = new HashMap<>();
 
     private HashMap<String, Dictionary> languageDictionary = new HashMap<>();
     private HashMap<String, String> dictionaryPath = new HashMap<>();
@@ -607,6 +607,7 @@ public class Controller implements IController {
      * @param idx index of the removed word
      * @param lengthDifference offset to add to the indexes
      */
+    @Override
     public void updateMispelledCursorEnds(int idx, int lengthDifference) {
         // If there is a difference bewteen the old and new word we update the indexes
         if (Math.abs(lengthDifference) != 0) {
@@ -704,7 +705,7 @@ public class Controller implements IController {
     }
 
     public void setSuggestionUsed(boolean suggestionUsed) {
-        Controller.suggestionUsed = suggestionUsed;
+        this.suggestionUsed = suggestionUsed;
     }
 
     public void setWindow(Window window) {

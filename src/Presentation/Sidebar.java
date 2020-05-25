@@ -72,26 +72,34 @@ public class Sidebar extends JPanel {
         panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
         panel.add(mispelledWordLabel);
 
-        // We create a ComboBox with the replacements for this word
-        JComboBox replacementsComboBox = new JComboBox(getReplacements(mispelledWord).toArray());
-        replacementsComboBox.setBorder(new EmptyBorder(0, 0, 0, 0));
-        replacementsComboBox.setSelectedItem(replacementsComboBox.getItemAt(0));
 
-        JButton replaceButton = new JButton("Set");
+        ArrayList<String> replacements = getReplacements(mispelledWord);
+        if (replacements.size() > 0){
+            JPanel wrapperMispelledWord = new JPanel();
+            // We create a ComboBox with the replacements for this word
+            JComboBox replacementsComboBox = new JComboBox(getReplacements(mispelledWord).toArray());
+            replacementsComboBox.setBorder(new EmptyBorder(0, 0, 0, 0));
+            replacementsComboBox.setSelectedItem(replacementsComboBox.getItemAt(0));
 
-        replaceButton.addActionListener(e -> {
-            controller.correctMispelledWord(mispelledWord, (String) replacementsComboBox.getSelectedItem());
-            // We remove the panel for this word from the sidebar
-            panelComboBox.remove(panel);
-            this.repaint();
-        });
+            JButton replaceButton = new JButton("Set");
 
-        JPanel wrapperMispelledWord = new JPanel();
-        wrapperMispelledWord.setLayout(new FlowLayout(FlowLayout.CENTER));
-        wrapperMispelledWord.add(replacementsComboBox);
-        wrapperMispelledWord.add(replaceButton);
+            replaceButton.addActionListener(e -> {
+                controller.correctMispelledWord(mispelledWord, (String) replacementsComboBox.getSelectedItem());
+                // We remove the panel for this word from the sidebar
+                panelComboBox.remove(panel);
+                this.repaint();
+            });
 
-        panel.add(wrapperMispelledWord);
+            wrapperMispelledWord.setLayout(new FlowLayout(FlowLayout.CENTER));
+            wrapperMispelledWord.add(replacementsComboBox);
+            wrapperMispelledWord.add(replaceButton);
+            panel.add(wrapperMispelledWord);
+        } else {
+            JLabel error = new JLabel("No correction available", JLabel.CENTER);
+            error.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+            error.setForeground(Color.red);
+            panel.add(error);
+        }
         panel.add(new JSeparator(SwingConstants.HORIZONTAL));
 
         panelComboBox.add(panel);
