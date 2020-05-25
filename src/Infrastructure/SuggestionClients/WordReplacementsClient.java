@@ -2,11 +2,12 @@
  * AUTHORS: Rafael Adrián Gil Cañestro
  * Miruna Andreea Gheata
  */
-package Utils;
+package Infrastructure.SuggestionClients;
 
 import Application.Controller;
 import Domain.Interfaces.ISuggestionClient;
 import Domain.Word;
+import Utils.Constants;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
@@ -16,11 +17,11 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.function.Function;
 
-public class TextComponentWordReplace implements ISuggestionClient<JTextComponent> {
+public class WordReplacementsClient implements ISuggestionClient<JTextComponent> {
     private Function<String, ArrayList<Word>> suggestionProvider;
     private Controller controller;
 
-    public TextComponentWordReplace(Function<String, ArrayList<Word>> suggestionProvider, Controller controller) {
+    public WordReplacementsClient(Function<String, ArrayList<Word>> suggestionProvider, Controller controller) {
         this.suggestionProvider = suggestionProvider;
         this.controller = controller;
     }

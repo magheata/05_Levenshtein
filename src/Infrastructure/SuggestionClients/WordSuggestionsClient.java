@@ -1,7 +1,7 @@
 /**
  * AUTHORS: Rafael Adrián Gil Cañestro
  * Miruna Andreea Gheata
- */package Utils;
+ */package Infrastructure.SuggestionClients;
 
 import Application.Controller;
 import Domain.Interfaces.ISuggestionClient;
@@ -15,11 +15,13 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.function.Function;
 
-public class TextComponentWordSuggestionClient implements ISuggestionClient<JTextComponent> {
+public class WordSuggestionsClient implements ISuggestionClient<JTextComponent> {
     private Function<String, ArrayList<Word>> suggestionProvider;
+    private Controller controller;
 
-    public TextComponentWordSuggestionClient(Function<String, ArrayList<Word>> suggestionProvider) {
+    public WordSuggestionsClient(Function<String, ArrayList<Word>> suggestionProvider, Controller controller) {
         this.suggestionProvider = suggestionProvider;
+        this.controller = controller;
     }
 
     @Override
@@ -47,7 +49,7 @@ public class TextComponentWordSuggestionClient implements ISuggestionClient<JTex
                 } else {
                     tp.getDocument().insertString(cp, selectedValue, null);
                 }
-                Controller.setSuggestionUsed(true);
+                controller.setSuggestionUsed(true);
             }
         } catch (BadLocationException e) {
         }

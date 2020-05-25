@@ -22,8 +22,12 @@ public class MenuBuilder {
     protected static UndoManager undo = new UndoManager();
     protected static UndoAction undoAction = new UndoAction();
     protected static RedoAction redoAction = new RedoAction();
+    public static Controller controller;
 
-    public final static String [] MENU_ITEMS_ORDER = new String[] {
+    public MenuBuilder(Controller controller){
+        this.controller = controller;
+    }
+    public static final String [] MENU_ITEMS_ORDER = new String[] {
             Constants.TEXT_FILE_MENU,
             Constants.TEXT_EDIT_MENU,
             Constants.TEXT_VIEW_MENU,
@@ -31,14 +35,14 @@ public class MenuBuilder {
             Constants.TEXT_PREFERENCES_MENU,
             Constants.TEXT_LANGUAGE_SUBMENU };
 
-    public final static ArrayList<String> IS_SUBMENU = new ArrayList<>(Arrays.asList(Constants.TEXT_LANGUAGE_SUBMENU));
+    public static final ArrayList<String> IS_SUBMENU = new ArrayList<>(Arrays.asList(Constants.TEXT_LANGUAGE_SUBMENU));
 
-    public final static ArrayList<String> ADD_SEPARATION_AFTER = new ArrayList<>(Arrays.asList(
+    public static final ArrayList<String> ADD_SEPARATION_AFTER = new ArrayList<>(Arrays.asList(
             Constants.TEXT_NEW_FROM_EXISTING_ITEM,
             Constants.TEXT_SPELLING_ITEM
     ));
 
-    public final static Map<String, ArrayList<String>> MAP_MENU_ITEMS = Map.ofEntries(
+    public static final Map<String, ArrayList<String>> MAP_MENU_ITEMS = Map.ofEntries(
             new AbstractMap.SimpleEntry<>(Constants.TEXT_FILE_MENU, new ArrayList<>() {
                 {
                     add(Constants.TEXT_NEW_FILE_ITEM);
@@ -85,7 +89,7 @@ public class MenuBuilder {
             )
     );
 
-    public final static Map<String, String> KEYSTROKES = Map.ofEntries(
+    public static final Map<String, String> KEYSTROKES = Map.ofEntries(
             new AbstractMap.SimpleEntry<>(Constants.TEXT_UNDO_ITEM, Constants.KEYSTROKE_UNDO),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_REDO_ITEM, Constants.KEYSTROKE_REDO),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_NEW_FILE_ITEM, Constants.KEYSTROKE_NEW_FILE),
@@ -100,7 +104,7 @@ public class MenuBuilder {
             new AbstractMap.SimpleEntry<>(Constants.TEXT_DISABLE_EDIT_ITEM, Constants.KEYSTROKE_EDIT)
     );
 
-    public final static Map<String, String> MENU_ICONS = Map.ofEntries(
+    public static final Map<String, String> MENU_ICONS = Map.ofEntries(
             new AbstractMap.SimpleEntry<>(Constants.TEXT_UNDO_ITEM, Constants.PATH_UNDO_ICON),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_REDO_ITEM, Constants.PATH_REDO_ICON),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_NEW_FILE_ITEM, Constants.PATH_NEW_FILE_ICON),
@@ -117,22 +121,22 @@ public class MenuBuilder {
             new AbstractMap.SimpleEntry<>(Constants.TEXT_SHOW_PANEL_ITEM, Constants.PATH_PANEL_ICON)
     );
 
-    public final static Map<String, JMenuItem> MENU_ITEMS = new HashMap<>();
+    public static final Map<String, JMenuItem> MENU_ITEMS = new HashMap<>();
 
 
-    public final static Map<String, ActionListener> MENU_ACTIONLISTENERS = Map.ofEntries(
+    public static final Map<String, ActionListener> MENU_ACTIONLISTENERS = Map.ofEntries(
             new AbstractMap.SimpleEntry<>(Constants.TEXT_UNDO_ITEM, undoAction),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_REDO_ITEM, redoAction),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_NEW_FILE_ITEM, e -> Controller.resetNotepad(true)),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_NEW_FROM_EXISTING_ITEM, e -> Controller.openFileChooser(true)),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_OPEN_FILE_ITEM, e -> Controller.openFileChooser(false)),
+            new AbstractMap.SimpleEntry<>(Constants.TEXT_NEW_FILE_ITEM, e -> controller.resetNotepad(true)),
+            new AbstractMap.SimpleEntry<>(Constants.TEXT_NEW_FROM_EXISTING_ITEM, e -> controller.openFileChooser(true)),
+            new AbstractMap.SimpleEntry<>(Constants.TEXT_OPEN_FILE_ITEM, e -> controller.openFileChooser(false)),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_ENABLE_SUGGESTIONS_ITEM, e -> {
                 if (MENU_ITEMS.get(Constants.TEXT_ENABLE_SUGGESTIONS_ITEM).getText().equals(Constants.TEXT_ENABLE_SUGGESTIONS_ITEM)){
                     MENU_ITEMS.get(Constants.TEXT_ENABLE_SUGGESTIONS_ITEM).setText(Constants.TEXT_DISABLE_SUGGESTIONS_ITEM);
                 } else {
                     MENU_ITEMS.get(Constants.TEXT_ENABLE_SUGGESTIONS_ITEM).setText(Constants.TEXT_ENABLE_SUGGESTIONS_ITEM);
                 }
-                Controller.toggleSuggestions();
+                controller.toggleSuggestions();
             }),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_DISABLE_SUGGESTIONS_ITEM, e -> {
                 if (MENU_ITEMS.get(Constants.TEXT_DISABLE_SUGGESTIONS_ITEM).getText().equals(Constants.TEXT_ENABLE_SUGGESTIONS_ITEM)){
@@ -140,19 +144,19 @@ public class MenuBuilder {
                 } else {
                     MENU_ITEMS.get(Constants.TEXT_DISABLE_SUGGESTIONS_ITEM).setText(Constants.TEXT_ENABLE_SUGGESTIONS_ITEM);
                 }
-                Controller.toggleSuggestions();
+                controller.toggleSuggestions();
             }),
-            new AbstractMap.SimpleEntry<>(Constants.TEXT_SPELLING_ITEM, e -> Controller.correctSpellingFromText()),
+            new AbstractMap.SimpleEntry<>(Constants.TEXT_SPELLING_ITEM, e -> controller.correctSpellingFromText()),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_FIND_WORD_ITEM, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    Controller.enableFindPanel(true);
+                    controller.enableFindPanel(true);
                 }
             }),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_FIND_REPLACE_WORD_ITEM, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    Controller.enableFindReplacePanel(true);
+                    controller.enableFindReplacePanel(true);
                 }
             }),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_HIDE_PANEL_ITEM, new ActionListener() {
@@ -160,10 +164,10 @@ public class MenuBuilder {
                 public void actionPerformed(ActionEvent e) {
                     if (MENU_ITEMS.get(Constants.TEXT_HIDE_PANEL_ITEM).getText().equals(Constants.TEXT_HIDE_PANEL_ITEM)){
                         MENU_ITEMS.get(Constants.TEXT_HIDE_PANEL_ITEM).setText(Constants.TEXT_SHOW_PANEL_ITEM);
-                        Controller.enableSidebarPanel(false);
+                        controller.enableSidebarPanel(false);
                     } else {
                         MENU_ITEMS.get(Constants.TEXT_HIDE_PANEL_ITEM).setText(Constants.TEXT_HIDE_PANEL_ITEM);
-                        Controller.enableSidebarPanel(true);
+                        controller.enableSidebarPanel(true);
                     }
                 }
             }),
@@ -172,36 +176,36 @@ public class MenuBuilder {
                 public void actionPerformed(ActionEvent e) {
                     if (MENU_ITEMS.get(Constants.TEXT_SHOW_PANEL_ITEM).getText().equals(Constants.TEXT_SHOW_PANEL_ITEM)){
                         MENU_ITEMS.get(Constants.TEXT_SHOW_PANEL_ITEM).setText(Constants.TEXT_HIDE_PANEL_ITEM);
-                        Controller.enableSidebarPanel(true);
+                        controller.enableSidebarPanel(true);
                     } else {
                         MENU_ITEMS.get(Constants.TEXT_SHOW_PANEL_ITEM).setText(Constants.TEXT_SHOW_PANEL_ITEM);
-                        Controller.enableSidebarPanel(false);
+                        controller.enableSidebarPanel(false);
                     }
                 }
             }),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_ENABLE_EDIT_ITEM, e -> {
                 if (MENU_ITEMS.get(Constants.TEXT_ENABLE_EDIT_ITEM).getText().equals(Constants.TEXT_ENABLE_EDIT_ITEM)){
                     MENU_ITEMS.get(Constants.TEXT_ENABLE_EDIT_ITEM).setText(Constants.TEXT_DISABLE_EDIT_ITEM);
-                    Controller.enableNotepad(true);
+                    controller.enableNotepad(true);
                 } else {
                     MENU_ITEMS.get(Constants.TEXT_ENABLE_EDIT_ITEM).setText(Constants.TEXT_ENABLE_EDIT_ITEM);
-                    Controller.enableNotepad(false);
-                    Controller.checkText();
+                    controller.enableNotepad(false);
+                    controller.checkText();
                 }
             }),
             new AbstractMap.SimpleEntry<>(Constants.TEXT_DISABLE_EDIT_ITEM, e -> {
                 if (MENU_ITEMS.get(Constants.TEXT_DISABLE_EDIT_ITEM).getText().equals(Constants.TEXT_ENABLE_EDIT_ITEM)){
                     MENU_ITEMS.get(Constants.TEXT_DISABLE_EDIT_ITEM).setText(Constants.TEXT_DISABLE_EDIT_ITEM);
-                    Controller.enableNotepad(true);
+                    controller.enableNotepad(true);
                 } else {
                     MENU_ITEMS.get(Constants.TEXT_DISABLE_EDIT_ITEM).setText(Constants.TEXT_ENABLE_EDIT_ITEM);
-                    Controller.enableNotepad(false);
-                    Controller.checkText();
+                    controller.enableNotepad(false);
+                    controller.checkText();
                 }
             })
     );
 
-    public final static Map<String, Integer> KEYEVENTS = Map.ofEntries(
+    public static final Map<String, Integer> KEYEVENTS = Map.ofEntries(
             new AbstractMap.SimpleEntry<>(Constants.KEYSTROKE_UNDO, KeyEvent.VK_Z),
             new AbstractMap.SimpleEntry<>(Constants.KEYSTROKE_REDO, KeyEvent.VK_Y),
             new AbstractMap.SimpleEntry<>(Constants.KEYSTROKE_NEW_FILE, KeyEvent.VK_N),
@@ -223,7 +227,7 @@ public class MenuBuilder {
         public void actionPerformed(ActionEvent e) {
             try {
                 undo.undo();
-                Controller.checkText();
+                controller.checkText();
             } catch (CannotUndoException ex) {
             }
             updateUndoState();
@@ -250,7 +254,7 @@ public class MenuBuilder {
         public void actionPerformed(ActionEvent e) {
             try {
                 undo.redo();
-                Controller.checkText();
+                controller.checkText();
             } catch (CannotRedoException ex) {
 
             }

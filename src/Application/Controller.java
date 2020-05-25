@@ -9,8 +9,10 @@ import Domain.Interfaces.IController;
 import Domain.Language;
 import Domain.SoundexDictionary;
 import Domain.Word;
-import Infrastructure.Soundex;
-import Infrastructure.SpellChecker;
+import Infrastructure.*;
+import Infrastructure.SuggestionClients.WordSuggestionsClient;
+import Infrastructure.SuggestionsManager;
+import Infrastructure.SuggestionClients.WordReplacementsClient;
 import Presentation.FindPanel;
 import Presentation.Notepad;
 import Presentation.Sidebar;
@@ -71,7 +73,8 @@ public class Controller implements IController {
      * Saves the mispelled word
      * @param word mispelled word to save
      */
-    public static void addMispelledWord(Word word) {
+    @Override
+    public void addMispelledWord(Word word) {
         word.setMispelled(true);
         // Used to know if we have already saved this mispelled word
         boolean duplicate = false;
@@ -117,7 +120,8 @@ public class Controller implements IController {
      * @param replaceWord replacement word
      * @param distance Levenshtein distance
      */
-    private static void addReplaceWord(Word wordToFind, String replaceWord, int distance) {
+    @Override
+    public void addReplaceWord(Word wordToFind, String replaceWord, int distance) {
         if (!wordToFind.replaceWordsInitialized()) {
             for (int i = 1; i <= Constants.MAX_DISTANCE; i++) {
                 wordToFind.addDistance(i);
@@ -129,14 +133,15 @@ public class Controller implements IController {
         }
     }
 
-    public static void addToSidebar(Word w) {
+    public void addToSidebar(Word w) {
         window.addToSidebar(w);
     }
 
     /**
      * Analyzes the text in the Notepad and marks the mispelled words.
      */
-    public static void checkText() {
+    @Override
+    public void checkText() {
         executor.submit(() -> {
             // Reset the necessary variables
             window.resetSidebar();
@@ -175,7 +180,8 @@ public class Controller implements IController {
     /**
      * Checks text and replaces all mispelled words with the first replacement it finds.
      */
-    public static void correctSpellingFromText() {
+    @Override
+    public void correctSpellingFromText() {
         executor.submit(() -> {
             StringBuilder correctedText = new StringBuilder(notepad.getText());
             int difference = 0;
@@ -226,6 +232,7 @@ public class Controller implements IController {
      * @param mispelledWord word to replace
      * @param correctedWord string to replace with
      */
+    @Override
     public void correctMispelledWord(Word mispelledWord, String correctedWord) {
         String newWord = correctedWord.split(" ")[0];
         int index = (int) getKeysByValue(mispelledWordsCursorEnd, mispelledWord).toArray()[0];
@@ -280,7 +287,8 @@ public class Controller implements IController {
      * @param wordToFind
      * @return True if words is found, False otherwise
      */
-    public static boolean findWordInDicctionary(Word wordToFind) {
+    @Override
+    public boolean findWordInDicctionary(Word wordToFind) {
         // If the word is not blank
         if (!wordToFind.getEntry().equals("") && !wordToFind.getEntry().equals(" ")) {
             // If it's a soundex dicionary (English) we have to get the words that are pronounced the same. This way
@@ -316,6 +324,7 @@ public class Controller implements IController {
      * @param wordToFind string to find
      * @return indexes of all the ocurrences of the wordToFind
      */
+    @Override
     public Future<ArrayList<Integer>> findWordInText(String wordToFind) {
         return executor.submit(() -> {
             // remove the previous highlighted words
@@ -341,7 +350,7 @@ public class Controller implements IController {
      * @param word word to replace
      * @return String with the replacement word
      */
-    private static String getFirstReplaceWord(Word word) {
+    private String getFirstReplaceWord(Word word) {
         // We start at distance 1
         int distance = 1;
         // We check if we have words for this distance; if not, we increment the distance and try again
@@ -471,7 +480,7 @@ public class Controller implements IController {
      * @param isEditable boolean that determines if the notepad can be edited or not. It will be False when we open a file.
      *                   It will be True if we create a file from an existing file.
      */
-    public static void openFileChooser(boolean isEditable) {
+    public void openFileChooser(boolean isEditable) {
         switch (window.getFileChooser().showOpenDialog(window)) {
             case JFileChooser.APPROVE_OPTION:
                 // Sets the text
@@ -479,7 +488,7 @@ public class Controller implements IController {
                 // Makes it editable
                 notepad.setNotepadEditable(isEditable);
                 // Check the text for errors
-                executor.submit(() -> checkText());
+                checkText();
                 break;
         }
     }
@@ -495,7 +504,7 @@ public class Controller implements IController {
      * Removes word from sidebar
      * @param w
      */
-    public static void removeFromSidebar(Word w) {
+    public void removeFromSidebar(Word w) {
         SwingUtilities.invokeLater(() -> {
             window.removeFromSidebar(w);
         });
@@ -514,6 +523,7 @@ public class Controller implements IController {
      * @param replacement word to replace with
      * @return difference of letters bewteen last word and replaced word
      */
+    @Override
     public int replaceWord(int index, int lengthPreviousWord, String replacement) {
         int difference = replacement.length() - lengthPreviousWord;
         try {
@@ -530,6 +540,7 @@ public class Controller implements IController {
      * @param old string to replace
      * @param newWord string to replace with
      */
+    @Override
     public void replaceWords(String old, String newWord) {
         notepad.setText(notepad.getText().replace(old, newWord));
     }
@@ -538,7 +549,7 @@ public class Controller implements IController {
      * Resets the necessary variables used for the control of the Notepad
      * @param isEditable
      */
-    public static void resetNotepad(boolean isEditable) {
+    public void resetNotepad(boolean isEditable) {
         notepad.setText("");
         notepad.setNotepadEditable(isEditable);
         window.updateStatusText("", null);
@@ -580,13 +591,13 @@ public class Controller implements IController {
         }
         dictionary = languageDictionary.get(selectedLanguage.getName());
         // Check the text for mispelled words
-        executor.submit(() -> checkText());
+        checkText();
     }
 
     /**
      * Used to activate/deactivate the suggestion option
      */
-    public static void toggleSuggestions() {
+    public void toggleSuggestions() {
         suggestionsEnabled = !suggestionsEnabled;
     }
 
@@ -596,7 +607,7 @@ public class Controller implements IController {
      * @param idx index of the removed word
      * @param lengthDifference offset to add to the indexes
      */
-    public static void updateMispelledCursorEnds(int idx, int lengthDifference) {
+    public void updateMispelledCursorEnds(int idx, int lengthDifference) {
         // If there is a difference bewteen the old and new word we update the indexes
         if (Math.abs(lengthDifference) != 0) {
             HashMap<Integer, Word> mispelledWordsCursorEndAux = new HashMap<>(mispelledWordsCursorEnd);
@@ -619,7 +630,7 @@ public class Controller implements IController {
     /**
      * Updates the display of the number of mispelled words
      */
-    private static void updateMispelledWordsCount() {
+    private void updateMispelledWordsCount() {
         if (mispelledWords.size() == 0) {
             window.updateStatusText("No errors in text", new ImageIcon(Constants.PATH_CORRECT_ICON));
 
@@ -629,21 +640,21 @@ public class Controller implements IController {
     }
 
     //region SETTERS & GETTERS
-    public static void enableNotepad(boolean isEditable) {
+    public void enableNotepad(boolean isEditable) {
         notepad.setNotepadEditable(isEditable);
     }
 
-    public static void enableFindPanel(boolean enabled) {
+    public void enableFindPanel(boolean enabled) {
         findPanel.setVisible(enabled);
         findPanel.enableFindPanel(enabled);
     }
 
-    public static void enableFindReplacePanel(boolean enabled) {
+    public void enableFindReplacePanel(boolean enabled) {
         findPanel.setVisible(enabled);
         findPanel.enableFindReplacePanel(enabled);
     }
 
-    public static void enableSidebarPanel(boolean enabled) {
+    public void enableSidebarPanel(boolean enabled) {
         sidebar.setVisible(enabled);
         if (enabled) {
             notepad.setSize(Constants.DIM_NOTEPAD);
@@ -666,7 +677,7 @@ public class Controller implements IController {
         return isSoundexDictionary;
     }
 
-    public static boolean isSuggestionUsed() {
+    public boolean isSuggestionUsed() {
         return suggestionUsed;
     }
 
@@ -684,15 +695,15 @@ public class Controller implements IController {
      */
     public void setNotepad(Notepad notepad) {
         this.notepad = notepad;
-        SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordSuggestionClient(Controller::getWords));
-        SuggestionDropDownDecorator.decorate(notepad, new TextComponentWordReplace(Controller::getReplaceWords, this), this);
+        SuggestionsManager.decorate(notepad, new WordSuggestionsClient(Controller::getWords, this));
+        SuggestionsManager.decorate(notepad, new WordReplacementsClient(Controller::getReplaceWords, this), this);
     }
 
     public void setSidebar(Sidebar sidebar) {
         this.sidebar = sidebar;
     }
 
-    public static void setSuggestionUsed(boolean suggestionUsed) {
+    public void setSuggestionUsed(boolean suggestionUsed) {
         Controller.suggestionUsed = suggestionUsed;
     }
 
