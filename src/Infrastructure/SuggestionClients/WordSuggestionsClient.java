@@ -17,9 +17,11 @@ import java.util.function.Function;
 
 public class WordSuggestionsClient implements ISuggestionClient<JTextComponent> {
     private Function<String, ArrayList<Word>> suggestionProvider;
+    private Controller controller;
 
-    public WordSuggestionsClient(Function<String, ArrayList<Word>> suggestionProvider) {
+    public WordSuggestionsClient(Function<String, ArrayList<Word>> suggestionProvider, Controller controller) {
         this.suggestionProvider = suggestionProvider;
+        this.controller = controller;
     }
 
     @Override
@@ -47,7 +49,7 @@ public class WordSuggestionsClient implements ISuggestionClient<JTextComponent> 
                 } else {
                     tp.getDocument().insertString(cp, selectedValue, null);
                 }
-                Controller.setSuggestionUsed(true);
+                controller.setSuggestionUsed(true);
             }
         } catch (BadLocationException e) {
         }

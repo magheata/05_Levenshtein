@@ -33,6 +33,7 @@ public class Window extends JFrame {
 
     public Window(Controller controller) {
         this.controller = controller;
+        MenuBuilder.controller = controller;
         initComponents();
     }
 
