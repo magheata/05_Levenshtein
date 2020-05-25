@@ -111,6 +111,7 @@ public class Notepad extends JTextPane {
                     }
                 }
             }
+            controller.setSuggestionUsed(false);
         }
     }
 
